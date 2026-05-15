@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Recessions & Mr. Market — Lesson 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F2EBDD;
+    --paper: #EBE2D0;
+    --ink: #1B1B1B;
+    --ink-soft: #4A4843;
+    --bond: #2F5D45;
+    --bond-soft: #DCE7DF;
+    --stock: #D8593B;
+    --stock-soft: #F5DACF;
+    --gold: #C8A95B;
+    --recession: #8B2E2E;
+    --recession-soft: #E6C9C5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(27,27,27,0.06) 1px, transparent 0);
+    background-size: 22px 22px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .app {
+    position: relative;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 18px 18px 130px;
+    z-index: 1;
+  }
+  header.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 2px 18px;
+  }
+  .label {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .progress { display: flex; gap: 6px; }
+  .dot {
+    width: 22px; height: 4px;
+    background: rgba(27,27,27,0.15);
+    border-radius: 2px;
+    transition: background .3s;
+  }
+  .dot.active { background: var(--ink); }
+  .dot.done { background: var(--gold); }
+
+  .slide {
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 18px;
+    padding: 28px 22px;
+    box-shadow: 6px 6px 0 var(--ink);
+    min-height: 480px;
+    display: none;
+    animation: fadeIn .45s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  h1.eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 42px;
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+  h2 .red { font-style: italic; color: var(--recession); }
+  h2 .green { font-style: italic; color: var(--bond); }
+  h2 .orange { font-style: italic; color: var(--stock); }
+  p {
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  strong { color: var(--ink); font-weight: 700; }
+  em { font-style: italic; }
+
+  /* Cover */
+  .cover-art {
+    position: relative;
+    height: 200px;
+    margin: 12px 0 22px;
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .cover-line {
+    position: absolute;
+    inset: 0;
+  }
+  .cover-label-top {
+    position: absolute;
+    top: 8px; left: 12px;
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .cover-label-bot {
+    position: absolute;
+    bottom: 8px; right: 12px;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+
+  /* Stat banner */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 14px 0;
+  }
+  .stat {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .stat .num {
+    font-family: 'Instrument Serif', serif;
+    font-size: 38px;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .stat .num.red { color: var(--recession); }
+  .stat .desc {
+    font-size: 12px;
+    margin-top: 6px;
+    color: var(--ink-soft);
+    line-height: 1.35;
+  }
+
+  /* Recession timeline */
+  .timeline-wrap {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px;
+    margin: 14px 0;
+  }
+  .tl-title {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .tl-axis {
+    position: relative;
+    height: 60px;
+    border-bottom: 1.5px solid var(--ink);
+    margin: 0 4px;
+  }
+  .tl-mark {
+    position: absolute;
+    bottom: 0;
+    width: 6px;
+    background: var(--recession);
+    border-radius: 1px;
+    transition: height .6s ease, opacity .4s;
+  }
+  .tl-mark:hover { background: var(--ink); }
+  .tl-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    padding: 0 4px;
+  }
+  .tl-legend {
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: 10px;
+    font-style: italic;
+    line-height: 1.4;
+  }
+  .tl-tip {
+    background: var(--paper);
+    border: 1px dashed rgba(27,27,27,0.3);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.4;
+    margin-top: 10px;
+    min-height: 38px;
+    text-align: center;
+    color: var(--ink);
+  }
+
+  /* Expansion vs recession bar */
+  .ratio-bar {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px;
+    margin: 14px 0;
+  }
+  .ratio-title {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    color: var(--ink-soft);
+  }
+  .bar {
+    display: flex;
+    height: 38px;
+    border: 1.5px solid var(--ink);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .bar .expansion {
+    background: var(--bond);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .bar .recession {
+    background: var(--recession);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .ratio-caption {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 10px;
+    line-height: 1.4;
+  }
+
+  /* Mr Market character */
+  .mrmarket {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 14px;
+    padding: 18px;
+    margin: 14px 0;
+    text-align: center;
+  }
+  .mr-face {
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    border: 2px solid var(--ink);
+    margin: 0 auto 12px;
+    background: var(--paper);
+    position: relative;
+    transition: background .5s, transform .3s;
+  }
+  .mr-eye {
+    position: absolute;
+    width: 12px; height: 12px;
+    background: var(--ink);
+    border-radius: 50%;
+    top: 38px;
+    transition: top .4s, height .4s;
+  }
+  .mr-eye.left { left: 28px; }
+  .mr-eye.right { right: 28px; }
+  .mr-mouth {
+    position: absolute;
+    width: 50px; height: 22px;
+    border: 2.5px solid var(--ink);
+    border-top: none;
+    border-radius: 0 0 50px 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 22px;
+    transition: all .5s;
+  }
+  /* Sad/depressed */
+  .mrmarket.sad .mr-face { background: var(--recession-soft); }
+  .mrmarket.sad .mr-mouth {
+    border-top: 2.5px solid var(--ink);
+    border-bottom: none;
+    border-radius: 50px 50px 0 0;
+    bottom: 32px;
+    height: 18px;
+    width: 40px;
+  }
+  /* Happy/euphoric */
+  .mrmarket.euphoric .mr-face { background: var(--stock-soft); transform: rotate(-3deg); }
+  .mrmarket.euphoric .mr-mouth {
+    width: 60px;
+    height: 30px;
+  }
+  /* Neutral */
+  .mrmarket.neutral .mr-mouth {
+    height: 4px;
+    width: 36px;
+    border-radius: 4px;
+    border: none;
+    background: var(--ink);
+    bottom: 32px;
+  }
+
+  .mr-quote {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1.2;
+    margin: 12px 0 6px;
+    color: var(--ink);
+  }
+  .mr-mood {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  /* Offer simulator */
+  .offer {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 14px;
+    padding: 16px;
+    margin: 14px 0;
+  }
+  .offer-header {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .offer-price {
+    font-family: 'Instrument Serif', serif;
+    font-size: 36px;
+    line-height: 1;
+    text-align: center;
+    margin: 6px 0;
+  }
+  .offer-price .change {
+    font-size: 16px;
+    font-style: italic;
+    color: var(--ink-soft);
+    display: block;
+    margin-top: 4px;
+  }
+  .offer-price .change.up { color: var(--bond); }
+  .offer-price .change.down { color: var(--recession); }
+  .offer-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .action-btn {
+    padding: 12px 8px;
+    border: 1.5px solid var(--ink);
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: var(--cream);
+    color: var(--ink);
+    transition: transform .12s;
+  }
+  .action-btn:active { transform: scale(0.95); }
+  .action-btn.buy { background: var(--bond); color: #fff; border-color: var(--bond); }
+  .action-btn.sell { background: var(--stock); color: #fff; border-color: var(--stock); }
+  .offer-result {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: var(--paper);
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.45;
+    border-left: 4px solid var(--gold);
+    min-height: 50px;
+  }
+  .offer-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 12px;
+    padding: 10px;
+    background: var(--paper);
+    border-radius: 8px;
+    font-size: 12px;
+  }
+  .offer-stats div { text-align: center; }
+  .offer-stats .v {
+    font-family: 'Instrument Serif', serif;
+    font-size: 22px;
+    display: block;
+  }
+
+  /* Feature cards */
+  .feature {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .feature .ftitle {
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .feature .fbody {
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .feature.green { border-left: 8px solid var(--bond); }
+  .feature.red   { border-left: 8px solid var(--recession); }
+  .feature.gold  { border-left: 8px solid var(--gold); }
+
+  /* Recovery card */
+  .recovery-card {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 18px;
+    border-radius: 12px;
+    margin: 14px 0;
+  }
+  .recovery-card h3 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 26px;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  .recovery-card .rdata {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 6px 0;
+    border-bottom: 1px dashed rgba(242,235,221,0.2);
+  }
+  .recovery-card .rdata:last-child { border-bottom: none; }
+  .recovery-card .rdata b { color: #fff; }
+
+  /* Quiz */
+  .quiz-q {
+    font-family: 'Instrument Serif', serif;
+    font-size: 26px;
+    line-height: 1.15;
+    margin: 6px 0 18px;
+  }
+  .qcount {
+    font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 15px;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform .12s, background .2s;
+  }
+  .opt:hover { transform: translateX(2px); }
+  .opt.correct { background: var(--bond); color: #fff; border-color: var(--bond); }
+  .opt.wrong   { background: var(--stock-soft); border-color: var(--stock); }
+  .opt:disabled { cursor: default; }
+  .feedback {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: var(--cream);
+    border-left: 5px solid var(--gold);
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.5;
+    display: none;
+  }
+  .feedback.show { display: block; }
+
+  /* Final */
+  .scorecard {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    margin: 14px 0;
+  }
+  .scorecard .big {
+    font-family: 'Instrument Serif', serif;
+    font-size: 64px;
+    line-height: 1;
+  }
+  .scorecard .small {
+    font-size: 12px; letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 4px;
+    opacity: 0.7;
+  }
+
+  /* Pull quote */
+  .pullquote {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 24px;
+    line-height: 1.25;
+    color: var(--ink);
+    border-left: 4px solid var(--gold);
+    padding: 6px 0 6px 16px;
+    margin: 14px 0;
+  }
+  .pullquote .attr {
+    display: block;
+    font-style: normal;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-top: 8px;
+  }
+
+  /* Bottom nav */
+  .nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, transparent 0%, var(--cream) 30%);
+    padding: 24px 18px 18px;
+    z-index: 5;
+  }
+  .nav-inner {
+    max-width: 560px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+  }
+  .btn {
+    flex: 1;
+    padding: 14px;
+    border: 1.5px solid var(--ink);
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: var(--cream);
+    color: var(--ink);
+    transition: transform .15s, background .2s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn.primary {
+    background: var(--ink);
+    color: var(--cream);
+  }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* Sawtooth growth line */
+  .market-art svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <span class="label">Investing 101 · Lesson 04</span>
+    <div class="progress" id="progress"></div>
+  </header>
+
+  <!-- SLIDE 1: Intro -->
+  <section class="slide active" data-slide="0">
+    <h1 class="eyebrow">Lesson 02 · 7 min</h1>
+    <h2>Recessions are <span class="red">normal</span>. The market is <span class="green">moody</span>.</h2>
+    <div class="cover-art market-art">
+      <span class="cover-label-top">S&P 500 · stylized · 100 yrs</span>
+      <svg viewBox="0 0 560 200" preserveAspectRatio="none">
+        <!-- recession shaded zones -->
+        <rect x="60"  y="0" width="14" height="200" fill="#8B2E2E" opacity="0.18"/>
+        <rect x="110" y="0" width="22" height="200" fill="#8B2E2E" opacity="0.18"/>
+        <rect x="180" y="0" width="10" height="200" fill="#8B2E2E" opacity="0.18"/>
+        <rect x="240" y="0" width="10" height="200" fill="#8B2E2E" opacity="0.18"/>
+        <rect x="305" y="0" width="14" height="200" fill="#8B2E2E" opacity="0.18"/>
+        <rect x="355" y="0" width="12" height="200" fill="#8B2E2E" opacity="0.18"/>
+        <rect x="420" y="0" width="20" height="200" fill="#8B2E2E" opacity="0.18"/>
+        <rect x="488" y="0" width="6"  height="200" fill="#8B2E2E" opacity="0.18"/>
+        <!-- market path: jagged but rising -->
+        <path d="M 10 180
+                 L 50 165 L 67 178 L 90 158 L 110 162 L 132 178
+                 L 160 152 L 185 168 L 210 145
+                 L 245 158 L 275 135 L 310 152 L 335 122
+                 L 365 138 L 400 105 L 430 132 L 470 88
+                 L 491 110 L 530 60 L 552 38"
+              fill="none" stroke="#1B1B1B" stroke-width="2.5" stroke-linejoin="round"/>
+      </svg>
+      <span class="cover-label-bot">Red bands = recessions. The line keeps climbing.</span>
+    </div>
+    <p>The economy rises and falls — it has been doing this for as long as we've kept records. Recessions feel scary, but they are <strong>scheduled visitors</strong>, not surprises.</p>
+    <p>This lesson covers two big ideas: <strong>recession cycles</strong>, and <strong>Benjamin Graham's Mr. Market</strong> — a framework that turns market panic into your advantage.</p>
+  </section>
+
+  <!-- SLIDE 2: The data -->
+  <section class="slide" data-slide="1">
+    <h1 class="eyebrow">Part 01 · The Record</h1>
+    <h2>The economy has done this <span class="orange">~34 times</span>.</h2>
+    <p>According to the National Bureau of Economic Research — the official scorekeeper — the U.S. has had <strong>34 recessions since 1857</strong>. That's roughly one every <strong>5 years</strong>.</p>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="num red">34</div>
+        <div class="desc">Recessions since 1857</div>
+      </div>
+      <div class="stat">
+        <div class="num">~10 mo</div>
+        <div class="desc">Average length since 1945</div>
+      </div>
+      <div class="stat">
+        <div class="num">2</div>
+        <div class="desc">Months — the shortest (COVID, 2020)</div>
+      </div>
+      <div class="stat">
+        <div class="num">65</div>
+        <div class="desc">Months — the longest (1873)</div>
+      </div>
+    </div>
+
+    <p>If you live to be 80, you can expect to see roughly <strong>12-15 recessions</strong> in your lifetime. Not one. Not two. A dozen.</p>
+  </section>
+
+  <!-- SLIDE 3: Interactive Timeline -->
+  <section class="slide" data-slide="2">
+    <h1 class="eyebrow">Part 02 · Tap A Bar</h1>
+    <h2>Every U.S. recession since <span class="red">1900</span>.</h2>
+    <p>Each red bar is an official recession. Bar height shows roughly how severe it was (peak unemployment). Tap one to see what caused it.</p>
+
+    <div class="timeline-wrap">
+      <div class="tl-title">U.S. Recessions · 1900 — Today</div>
+      <div class="tl-axis" id="timeline"></div>
+      <div class="tl-labels">
+        <span>1900</span><span>1925</span><span>1950</span><span>1975</span><span>2000</span><span>Today</span>
+      </div>
+      <div class="tl-tip" id="tlTip">Tap any red bar above.</div>
+      <div class="tl-legend">Notice the pattern: a downturn arrives every few years. Always has. Always will.</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: Expansion vs Recession -->
+  <section class="slide" data-slide="3">
+    <h1 class="eyebrow">Part 03 · The Ratio</h1>
+    <h2>The good times <span class="green">outlast</span> the bad.</h2>
+    <p>Recessions are loud, but they're a sliver of history. Since World War II, the U.S. economy has spent <strong>~85% of months expanding</strong> — and only ~15% in recession.</p>
+
+    <div class="ratio-bar">
+      <div class="ratio-title">Months in expansion vs recession · 1945-today</div>
+      <div class="bar">
+        <div class="expansion" style="flex: 85;">85% · Growth</div>
+        <div class="recession" style="flex: 15;">15%</div>
+      </div>
+      <div class="ratio-caption">The economy is almost always growing. Recessions are the <em>interruptions</em>, not the rule.</div>
+    </div>
+
+    <div class="feature green">
+      <div class="ftitle">Why this matters</div>
+      <div class="fbody">If you panic-sell during the red bars, you miss the green years that follow — and the green years are where most of the wealth gets built.</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: Recovery -->
+  <section class="slide" data-slide="4">
+    <h1 class="eyebrow">Part 04 · After The Storm</h1>
+    <h2>The market <span class="green">always recovers</span>.</h2>
+    <p>"Always" is a strong word — but it's been true through wars, depressions, oil crises, and pandemics. Markets fall hard during recessions, then climb back to new highs.</p>
+
+    <div class="recovery-card">
+      <h3>S&P 500 — falls & recoveries</h3>
+      <div class="rdata"><span>Great Depression (1929)</span><b>-86% → recovered</b></div>
+      <div class="rdata"><span>1973 oil crisis</span><b>-48% → recovered</b></div>
+      <div class="rdata"><span>Dot-com bust (2000)</span><b>-49% → recovered</b></div>
+      <div class="rdata"><span>Global Financial Crisis (2008)</span><b>-57% → recovered</b></div>
+      <div class="rdata"><span>COVID crash (2020)</span><b>-34% → 5 months</b></div>
+    </div>
+
+    <p>Every single one of these felt like the world was ending. Every single one became, in hindsight, <strong>a buying opportunity</strong>.</p>
+  </section>
+
+  <!-- SLIDE 6: Meet Mr. Market -->
+  <section class="slide" data-slide="5">
+    <h1 class="eyebrow">Part 05 · The Framework</h1>
+    <h2>Meet <span class="orange">Mr. Market</span>.</h2>
+    <p>In 1949, Benjamin Graham — Warren Buffett's teacher — wrote a book called <em>The Intelligent Investor</em>. In it, he introduced one of the best metaphors in all of finance.</p>
+
+    <div class="mrmarket neutral" id="mrm">
+      <div class="mr-face">
+        <div class="mr-eye left"></div>
+        <div class="mr-eye right"></div>
+        <div class="mr-mouth"></div>
+      </div>
+      <div class="mr-quote" id="mrQuote">"I'll buy or sell. Your call."</div>
+      <div class="mr-mood" id="mrMood">— Calm</div>
+    </div>
+
+    <p>Imagine you co-own a business with a man named <strong>Mr. Market</strong>. Every single day, he shows up at your door and offers either to <strong>buy your share</strong> from you, or to <strong>sell you his</strong>.</p>
+    <p>The catch: he is <strong>emotionally unstable</strong>. Some days he's euphoric and quotes you absurdly high prices. Other days he's depressed and offers to sell for pennies.</p>
+  </section>
+
+  <!-- SLIDE 7: Mr Market Game -->
+  <section class="slide" data-slide="6">
+    <h1 class="eyebrow">Part 06 · Try It Yourself</h1>
+    <h2>What would <span class="green">you</span> do?</h2>
+    <p>You own one share of "ACME Corp." Its true business value is <strong>~$100</strong> per share. Mr. Market shows up each day with a new mood. Make 5 decisions and see how you do.</p>
+
+    <div class="offer">
+      <div class="offer-header" id="dayLabel">Day 1 of 5 · Mr. Market says…</div>
+      <div class="offer-price" id="offerPrice">$100<span class="change" id="offerChange">at fair value</span></div>
+
+      <div class="offer-actions">
+        <button class="action-btn buy" data-act="buy">Buy More</button>
+        <button class="action-btn" data-act="hold">Ignore Him</button>
+        <button class="action-btn sell" data-act="sell">Sell</button>
+      </div>
+      <div class="offer-result" id="offerResult">Mr. Market is offering you a fair price today. Your move.</div>
+      <div class="offer-stats">
+        <div><span class="v" id="statShares">1</span>shares owned</div>
+        <div><span class="v" id="statCash">$0</span>cash</div>
+        <div><span class="v" id="statValue">$100</span>portfolio</div>
+      </div>
+    </div>
+    <p style="margin-top:14px; font-size:13.5px;"><em>Hint:</em> the business is always worth ~$100. Mr. Market's mood is the variable. Buy from him when he's panicked. Sell to him when he's greedy. Ignore him when he's reasonable.</p>
+  </section>
+
+  <!-- SLIDE 8: The Lesson -->
+  <section class="slide" data-slide="7">
+    <h1 class="eyebrow">Part 07 · The Takeaway</h1>
+    <h2>Recessions <span class="green">serve</span> the patient investor.</h2>
+    <p>Put the two ideas together:</p>
+
+    <div class="feature red">
+      <div class="ftitle">1. Recessions are part of the deal</div>
+      <div class="fbody">They've happened 34+ times. They will happen again. Expect them the way you expect winter.</div>
+    </div>
+    <div class="feature gold">
+      <div class="ftitle">2. They make Mr. Market panic</div>
+      <div class="fbody">During a recession, Mr. Market dumps quality businesses at fire-sale prices. He's not analyzing — he's afraid.</div>
+    </div>
+    <div class="feature green">
+      <div class="ftitle">3. That's when great investors buy</div>
+      <div class="fbody">If a business is still going to be a good business in 10 years, a 40% discount on its shares isn't a tragedy — it's a sale.</div>
+    </div>
+
+    <div class="pullquote">
+      "Be fearful when others are greedy, and greedy when others are fearful."
+      <span class="attr">— Warren Buffett</span>
+    </div>
+  </section>
+
+  <!-- SLIDE 9-11: Quiz -->
+  <section class="slide" data-slide="8">
+    <div class="qcount">Quick Check · 1 of 3</div>
+    <div class="quiz-q">Roughly how often does the U.S. economy enter a recession?</div>
+    <div class="options" data-q="1" data-correct="1">
+      <button class="opt">Once every 20-30 years</button>
+      <button class="opt">Roughly every 5 years on average</button>
+      <button class="opt">They're rare — only during major wars</button>
+    </div>
+    <div class="feedback"></div>
+  </section>
+
+  <section class="slide" data-slide="9">
+    <div class="qcount">Quick Check · 2 of 3</div>
+    <div class="quiz-q">In Graham's metaphor, when Mr. Market is depressed and offering low prices, the smart move is to…</div>
+    <div class="options" data-q="2" data-correct="1">
+      <button class="opt">Sell before he drops the price further</button>
+      <button class="opt">Buy from him — he's offering a discount</button>
+      <button class="opt">Always agree with whatever mood he's in</button>
+    </div>
+    <div class="feedback"></div>
+  </section>
+
+  <section class="slide" data-slide="10">
+    <div class="qcount">Quick Check · 3 of 3</div>
+    <div class="quiz-q">Historically, the stock market after a major recession has…</div>
+    <div class="options" data-q="3" data-correct="2">
+      <button class="opt">Stayed permanently lower</button>
+      <button class="opt">Never recovered to previous highs</button>
+      <button class="opt">Always recovered and gone on to new highs</button>
+    </div>
+    <div class="feedback"></div>
+  </section>
+
+  <!-- Final -->
+  <section class="slide" data-slide="11">
+    <h1 class="eyebrow">You Made It</h1>
+    <h2>You think like an <span class="green">investor</span> now.</h2>
+    <div class="scorecard">
+      <div class="big" id="finalScore">0/3</div>
+      <div class="small">questions correct</div>
+    </div>
+
+    <p>Three ideas to remember for the rest of your investing life:</p>
+
+    <div class="feature red">
+      <div class="ftitle">Recessions are cycles, not catastrophes</div>
+      <div class="fbody">They've happened ~34 times. They'll happen ~12 more times in your life. This is fine.</div>
+    </div>
+    <div class="feature gold">
+      <div class="ftitle">Mr. Market works for you, not the other way around</div>
+      <div class="fbody">You never have to act on his mood. Use his panic, ignore his euphoria.</div>
+    </div>
+    <div class="feature green">
+      <div class="ftitle">A crash is a sale</div>
+      <div class="fbody">If you were going to buy a quality business at $100, you should be thrilled to buy it at $60.</div>
+    </div>
+
+    <button class="btn primary" id="restart" style="margin-top:14px; width:100%;">Start Over ↻</button>
+  </section>
+
+</div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="btn" id="back">← Back</button>
+    <button class="btn primary" id="next">Next →</button>
+  </div>
+</nav>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let score = 0;
+  let answered = {};
+
+  const progress = document.getElementById('progress');
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    progress.appendChild(d);
+  }
+  const dots = progress.querySelectorAll('.dot');
+
+  const backBtn = document.getElementById('back');
+  const nextBtn = document.getElementById('next');
+
+  function go(n) {
+    if (n < 0 || n >= total) return;
+    slides[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    updateDots();
+    updateNav();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+  function updateDots() {
+    dots.forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+      d.classList.toggle('done', i < current);
+    });
+  }
+  function updateNav() {
+    backBtn.disabled = current === 0;
+    nextBtn.textContent = current === total - 1 ? 'Done ✓' : 'Next →';
+    const slide = slides[current];
+    const isQuiz = slide.querySelector('.options');
+    nextBtn.disabled = !!(isQuiz && !answered[isQuiz.dataset.q]);
+  }
+  backBtn.addEventListener('click', () => go(current - 1));
+  nextBtn.addEventListener('click', () => {
+    if (current === total - 1) return;
+    go(current + 1);
+  });
+
+  /* ===== Timeline ===== */
+  // Real US recessions (NBER) with approximate peak unemployment / severity 1-10
+  // and short causes. Year is start year.
+  const recessions = [
+    {year: 1902, sev: 4, cause: "1902-04. Mild downturn after copper market panic."},
+    {year: 1907, sev: 6, cause: "1907-08. 'Panic of 1907' — banking crisis, before the Fed existed."},
+    {year: 1910, sev: 4, cause: "1910-12. Slowdown following monetary tightening."},
+    {year: 1913, sev: 5, cause: "1913-14. Recession on the eve of World War I."},
+    {year: 1918, sev: 4, cause: "1918-19. Post-WWI demobilization."},
+    {year: 1920, sev: 7, cause: "1920-21. Severe deflation after the war boom."},
+    {year: 1923, sev: 4, cause: "1923-24. Mild Fed-induced slowdown."},
+    {year: 1926, sev: 3, cause: "1926-27. Brief, mild downturn."},
+    {year: 1929, sev: 10, cause: "1929-33. The Great Depression. Unemployment hit ~25%. The defining economic event of the century."},
+    {year: 1937, sev: 8, cause: "1937-38. Premature tightening of fiscal/monetary policy choked the recovery."},
+    {year: 1945, sev: 4, cause: "1945. Post-WWII demobilization — short and mild."},
+    {year: 1948, sev: 5, cause: "1948-49. Post-war inventory adjustment."},
+    {year: 1953, sev: 5, cause: "1953-54. Post-Korean War slowdown."},
+    {year: 1957, sev: 6, cause: "1957-58. Sharp but short. Tight monetary policy."},
+    {year: 1960, sev: 5, cause: "1960-61. Brief Fed-induced slowdown."},
+    {year: 1969, sev: 5, cause: "1969-70. Inflation-fighting; end of long 1960s expansion."},
+    {year: 1973, sev: 8, cause: "1973-75. Oil embargo + stagflation. S&P fell ~48%."},
+    {year: 1980, sev: 6, cause: "1980. Brief; Fed Chair Volcker's war on inflation begins."},
+    {year: 1981, sev: 8, cause: "1981-82. Volcker recession. Brutal but broke inflation."},
+    {year: 1990, sev: 5, cause: "1990-91. Oil shock from Iraq invading Kuwait + S&L crisis."},
+    {year: 2001, sev: 5, cause: "2001. Dot-com bust + 9/11. Nasdaq fell ~77%."},
+    {year: 2007, sev: 9, cause: "2007-09. Global Financial Crisis. Housing bubble burst. S&P fell ~57%."},
+    {year: 2020, sev: 8, cause: "2020. COVID-19 pandemic. Shortest recession ever (2 months). Sharpest crash, fastest recovery."}
+  ];
+  const tl = document.getElementById('timeline');
+  const tlTip = document.getElementById('tlTip');
+  const startYear = 1900;
+  const endYear = 2026;
+  const range = endYear - startYear;
+  recessions.forEach(r => {
+    const bar = document.createElement('div');
+    bar.className = 'tl-mark';
+    const left = ((r.year - startYear) / range) * 100;
+    const h = 18 + r.sev * 4; // 22 to 58 px
+    bar.style.left = `calc(${left}% )`;
+    bar.style.height = h + 'px';
+    bar.title = r.year + ' recession';
+    bar.addEventListener('click', () => {
+      tlTip.innerHTML = `<strong>${r.year}:</strong> ${r.cause}`;
+      document.querySelectorAll('.tl-mark').forEach(m => m.style.opacity = '0.55');
+      bar.style.opacity = '1';
+    });
+    tl.appendChild(bar);
+  });
+
+  /* ===== Mr Market simulator ===== */
+  const moods = [
+    { name: "euphoric",  quote: "I'll pay $145! She's a goldmine!", change: "+45%", price: 145, cls: "euphoric", advice: { buy: "He's overpaying — buying more from him at a premium is exactly backward.", hold: "Reasonable. You don't have to do anything when he's overheated.", sell: "Smart. Mr. Market is paying you 45% above fair value. Take the money." } },
+    { name: "depressed", quote: "Take it for $55… I just want out.", change: "-45%", price: 55,  cls: "sad", advice: { buy: "Excellent. Same business, 45% off. This is the Graham move.", hold: "Safe — but you just passed on a 45% discount on a business you already trust.", sell: "Why would you sell to him? He's offering pennies. He's panicking." } },
+    { name: "calm",      quote: "Fair price today: $102.",          change: "near fair value", price: 102, cls: "neutral", advice: { buy: "Fine. No bargain, but no danger either.", hold: "Correct. When the price is fair, doing nothing is doing the right thing.", sell: "Why? You'd just be paying taxes on a fair-value sale." } },
+    { name: "panicked",  quote: "Crash incoming! $68 — final offer.",change: "-32%", price: 68,  cls: "sad", advice: { buy: "Great call. Recessions create these moments. Buy.", hold: "Fine, but you missed a discount.", sell: "He's terrified — and you're selling to him at his lowest? Bad trade." } },
+    { name: "greedy",    quote: "Everyone wants in! $128!",         change: "+28%", price: 128, cls: "euphoric", advice: { buy: "Paying a 28% premium because he's excited isn't a strategy.", hold: "Reasonable. Don't chase his excitement.", sell: "Solid. He's offering well above fair value. Locking in profit makes sense." } }
+  ];
+
+  let day = 0;
+  let shares = 1;
+  let cash = 0;
+  let currentOffer = moods[2]; // start at "calm" $102
+
+  const mrm = document.getElementById('mrm');
+  const mrQuote = document.getElementById('mrQuote');
+  const mrMood = document.getElementById('mrMood');
+
+  const dayLabel = document.getElementById('dayLabel');
+  const offerPrice = document.getElementById('offerPrice');
+  const offerChange = document.getElementById('offerChange');
+  const offerResult = document.getElementById('offerResult');
+  const statShares = document.getElementById('statShares');
+  const statCash = document.getElementById('statCash');
+  const statValue = document.getElementById('statValue');
+
+  function rollMood() {
+    return moods[Math.floor(Math.random() * moods.length)];
+  }
+
+  function showOffer() {
+    if (day >= 5) {
+      dayLabel.textContent = "Done · final tally";
+      offerPrice.innerHTML = '$' + currentOffer.price + '<span class="change">market closed</span>';
+      const portfolio = shares * 100 + cash; // value at fair value $100
+      let msg;
+      if (portfolio > 130) msg = `Excellent. Final portfolio: $${portfolio.toFixed(0)}. You used Mr. Market's mood swings to your advantage — buying low, selling high. This is the whole game.`;
+      else if (portfolio >= 95) msg = `Solid. Final portfolio: $${portfolio.toFixed(0)}. You held your ground, which is more than most people manage.`;
+      else msg = `Final portfolio: $${portfolio.toFixed(0)}. You lost ground by reacting to his mood instead of using it. Try again — see what changes.`;
+      offerResult.textContent = msg;
+      document.querySelectorAll('.action-btn').forEach(b => b.disabled = true);
+      return;
+    }
+    currentOffer = rollMood();
+    dayLabel.textContent = `Day ${day + 1} of 5 · Mr. Market says…`;
+    offerPrice.innerHTML = `$${currentOffer.price}<span class="change ${currentOffer.change.startsWith('+') ? 'up' : currentOffer.change.startsWith('-') ? 'down' : ''}">${currentOffer.change}</span>`;
+    mrQuote.textContent = `"${currentOffer.quote}"`;
+    mrMood.textContent = `— ${currentOffer.name.charAt(0).toUpperCase() + currentOffer.name.slice(1)}`;
+    mrm.classList.remove('euphoric','sad','neutral');
+    mrm.classList.add(currentOffer.cls);
+    offerResult.textContent = "Your move.";
+  }
+
+  function updateStats() {
+    statShares.textContent = shares;
+    statCash.textContent = '$' + cash.toFixed(0);
+    statValue.textContent = '$' + (shares * 100 + cash).toFixed(0);
+  }
+
+  document.querySelectorAll('.action-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (day >= 5) return;
+      const act = btn.dataset.act;
+      const price = currentOffer.price;
+      let outcome = currentOffer.advice[act];
+      if (act === 'buy') {
+        // Buy if can afford or take on debt? Cap at affordable. If cash < price, you "borrow" up to one share.
+        shares += 1;
+        cash -= price;
+      } else if (act === 'sell') {
+        if (shares > 0) {
+          shares -= 1;
+          cash += price;
+        } else {
+          outcome = "You have no shares to sell. Skipped.";
+        }
+      }
+      // hold = no change
+      offerResult.textContent = outcome;
+      updateStats();
+      day++;
+      setTimeout(showOffer, 1200);
+    });
+  });
+
+  // Initialize Mr Market on the meet slide (slide 6)
+  mrm.classList.add('neutral');
+
+  // Initialize simulator state display
+  updateStats();
+  // Set initial offer when user reaches slide 7
+  // We'll trigger setup on slide change:
+  const origGo = go;
+
+  /* ===== Quiz ===== */
+  document.querySelectorAll('.options').forEach(group => {
+    const correct = parseInt(group.dataset.correct, 10);
+    const qid = group.dataset.q;
+    const feedback = group.parentElement.querySelector('.feedback');
+    const opts = group.querySelectorAll('.opt');
+    opts.forEach((btn, idx) => {
+      btn.addEventListener('click', () => {
+        if (answered[qid]) return;
+        answered[qid] = true;
+        opts.forEach(b => b.disabled = true);
+        if (idx === correct) {
+          btn.classList.add('correct');
+          score++;
+          feedback.textContent = "Correct. " + explain(qid);
+        } else {
+          btn.classList.add('wrong');
+          opts[correct].classList.add('correct');
+          feedback.textContent = "Not quite. " + explain(qid);
+        }
+        feedback.classList.add('show');
+        updateNav();
+        document.getElementById('finalScore').textContent = score + '/3';
+      });
+    });
+  });
+  function explain(q) {
+    if (q === '1') return "Roughly one every 5 years on average — about 34 since 1857.";
+    if (q === '2') return "When Mr. Market is depressed, his low prices are an opportunity, not a warning.";
+    if (q === '3') return "Through wars, depressions, and pandemics — markets have always eventually made new highs.";
+    return "";
+  }
+
+  /* Restart */
+  document.getElementById('restart').addEventListener('click', () => {
+    answered = {}; score = 0;
+    document.getElementById('finalScore').textContent = '0/3';
+    document.querySelectorAll('.opt').forEach(b => {
+      b.classList.remove('correct','wrong');
+      b.disabled = false;
+    });
+    document.querySelectorAll('.feedback').forEach(f => f.classList.remove('show'));
+    // Reset simulator
+    day = 0; shares = 1; cash = 0;
+    document.querySelectorAll('.action-btn').forEach(b => b.disabled = false);
+    updateStats();
+    showOffer();
+    go(0);
+  });
+
+  // Start the simulator off
+  showOffer();
+
+  updateDots();
+  updateNav();
+</script>
+
+</body>
+</html>

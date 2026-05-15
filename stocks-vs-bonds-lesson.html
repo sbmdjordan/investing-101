@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stocks vs Bonds — An Interactive Lesson</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F2EBDD;
+    --paper: #EBE2D0;
+    --ink: #1B1B1B;
+    --ink-soft: #4A4843;
+    --bond: #2F5D45;       /* forest green - stability */
+    --bond-soft: #DCE7DF;
+    --stock: #D8593B;      /* coral / orange - growth & risk */
+    --stock-soft: #F5DACF;
+    --gold: #C8A95B;
+    --shadow: 0 4px 0 rgba(27,27,27,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(27,27,27,0.06) 1px, transparent 0);
+    background-size: 22px 22px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .app {
+    position: relative;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 18px 18px 120px;
+    z-index: 1;
+  }
+  header.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 2px 18px;
+  }
+  .label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .progress {
+    display: flex;
+    gap: 6px;
+  }
+  .dot {
+    width: 22px; height: 4px;
+    background: rgba(27,27,27,0.15);
+    border-radius: 2px;
+    transition: background .3s;
+  }
+  .dot.active { background: var(--ink); }
+  .dot.done { background: var(--gold); }
+
+  .slide {
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 18px;
+    padding: 28px 22px;
+    box-shadow: 6px 6px 0 var(--ink);
+    min-height: 480px;
+    display: none;
+    animation: fadeIn .45s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  h1.eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 42px;
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+  h2 .italic {
+    font-style: italic;
+    color: var(--stock);
+  }
+  h2 .green {
+    font-style: italic;
+    color: var(--bond);
+  }
+  p {
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  strong { color: var(--ink); font-weight: 700; }
+
+  /* Slide 1 hero */
+  .hero-shapes {
+    position: relative;
+    height: 180px;
+    margin: 18px 0 24px;
+  }
+  .shape-stock {
+    position: absolute;
+    left: 6%; top: 20px;
+    width: 130px; height: 130px;
+    background: var(--stock);
+    border: 1.5px solid var(--ink);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 28px;
+    transform: rotate(-6deg);
+    animation: floatA 4s ease-in-out infinite;
+  }
+  .shape-bond {
+    position: absolute;
+    right: 6%; top: 40px;
+    width: 130px; height: 130px;
+    background: var(--bond);
+    border: 1.5px solid var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 28px;
+    transform: rotate(5deg);
+    animation: floatB 4s ease-in-out infinite;
+  }
+  @keyframes floatA {
+    0%,100% { transform: rotate(-6deg) translateY(0); }
+    50%     { transform: rotate(-6deg) translateY(-8px); }
+  }
+  @keyframes floatB {
+    0%,100% { transform: rotate(5deg) translateY(0); }
+    50%     { transform: rotate(5deg) translateY(-10px); }
+  }
+  .vs {
+    position: absolute;
+    left: 50%; top: 70px;
+    transform: translateX(-50%);
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 38px;
+    color: var(--ink);
+  }
+
+  /* Card list for definitions */
+  .feature {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .feature .ftitle {
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+    color: var(--ink);
+  }
+  .feature .fbody {
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .feature.stock { border-left: 8px solid var(--stock); }
+  .feature.bond  { border-left: 8px solid var(--bond); }
+
+  /* Interactive market simulator */
+  .sim {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 14px;
+  }
+  .sim-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .sim-title {
+    font-weight: 700; font-size: 13px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .sim-btn {
+    background: var(--ink); color: var(--cream);
+    border: none;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform .15s;
+  }
+  .sim-btn:active { transform: scale(0.95); }
+  .sim-chart {
+    width: 100%; height: 140px;
+    background: var(--paper);
+    border: 1px solid rgba(27,27,27,0.2);
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .sim-line {
+    stroke-width: 2.5;
+    fill: none;
+  }
+  .legend {
+    display: flex; gap: 16px;
+    margin-top: 10px;
+    font-size: 12px;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i {
+    width: 14px; height: 3px; display: inline-block;
+  }
+  .scenario {
+    font-size: 13px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px dashed rgba(27,27,27,0.3);
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+    line-height: 1.4;
+  }
+
+  /* Comparison table */
+  .compare {
+    margin-top: 14px;
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--cream);
+  }
+  .compare .row {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr 1fr;
+    border-bottom: 1px solid rgba(27,27,27,0.15);
+  }
+  .compare .row:last-child { border-bottom: none; }
+  .compare .row > div {
+    padding: 10px 10px;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+  .compare .row.header > div {
+    font-weight: 700;
+    background: var(--ink);
+    color: var(--cream);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .compare .row > div.k {
+    background: var(--paper);
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .compare .col-stock { color: var(--ink); }
+  .compare .col-bond  { color: var(--ink); border-left: 1px solid rgba(27,27,27,0.15); }
+
+  /* Quiz */
+  .quiz-q {
+    font-family: 'Instrument Serif', serif;
+    font-size: 26px;
+    line-height: 1.15;
+    margin: 6px 0 18px;
+  }
+  .qcount {
+    font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 15px;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform .12s, background .2s;
+  }
+  .opt:hover { transform: translateX(2px); }
+  .opt.correct { background: var(--bond); color: #fff; border-color: var(--bond); }
+  .opt.wrong   { background: var(--stock-soft); border-color: var(--stock); }
+  .opt:disabled { cursor: default; }
+  .feedback {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: var(--cream);
+    border-left: 5px solid var(--gold);
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.5;
+    display: none;
+  }
+  .feedback.show { display: block; }
+
+  /* Final */
+  .scorecard {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    margin: 14px 0;
+  }
+  .scorecard .big {
+    font-family: 'Instrument Serif', serif;
+    font-size: 64px;
+    line-height: 1;
+  }
+  .scorecard .small {
+    font-size: 12px; letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 4px;
+    opacity: 0.7;
+  }
+
+  /* Bottom nav */
+  .nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, transparent 0%, var(--cream) 30%);
+    padding: 24px 18px 18px;
+    z-index: 5;
+  }
+  .nav-inner {
+    max-width: 560px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+  }
+  .btn {
+    flex: 1;
+    padding: 14px;
+    border: 1.5px solid var(--ink);
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: var(--cream);
+    color: var(--ink);
+    transition: transform .15s, background .2s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn.primary {
+    background: var(--ink);
+    color: var(--cream);
+  }
+  .btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  /* Visualization icon for ownership / lending */
+  .visual-ownership, .visual-lending {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin: 16px 0;
+    align-items: center;
+  }
+  .person {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    border: 1.5px solid var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 22px;
+    background: var(--cream);
+  }
+  .arrow {
+    font-size: 22px;
+    color: var(--ink);
+  }
+  .building {
+    width: 64px; height: 64px;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    border-radius: 6px;
+  }
+  .flow-label {
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: -6px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <span class="label">Investing 101</span>
+    <div class="progress" id="progress"></div>
+  </header>
+
+  <!-- SLIDE 1: Intro -->
+  <section class="slide active" data-slide="0">
+    <h1 class="eyebrow">Lesson · 6 min</h1>
+    <h2>The two main <span class="italic">asset</span> <span class="green">classes</span>.</h2>
+    <div class="hero-shapes">
+      <div class="shape-stock">stocks</div>
+      <div class="vs">vs</div>
+      <div class="shape-bond">bonds</div>
+    </div>
+    <p>When people talk about investing, they almost always mean one of two things: <strong>buying a piece of a company</strong> or <strong>lending money out for interest</strong>.</p>
+    <p>That's it. Stocks and bonds. Tap <em>Next</em> to see how each one actually works.</p>
+  </section>
+
+  <!-- SLIDE 2: Stocks -->
+  <section class="slide" data-slide="1">
+    <h1 class="eyebrow">Class 01 · Equities</h1>
+    <h2>Stocks are <span class="italic">ownership</span>.</h2>
+    <p>A share of stock is a tiny slice of a real company. If you own one share of Apple, you literally own a piece of Apple — its factories, its products, its profits.</p>
+
+    <div class="visual-ownership">
+      <div class="person">You</div>
+      <span class="arrow">→</span>
+      <div class="building">🏢</div>
+      <span class="arrow">→</span>
+      <div class="person" style="background:var(--stock-soft)">📈</div>
+    </div>
+    <div class="flow-label">You buy a slice · The company grows · Your slice is worth more</div>
+
+    <div class="feature stock">
+      <div class="ftitle">How you make money</div>
+      <div class="fbody">The stock price rises as the company grows, or the company pays you a share of its profits (a <strong>dividend</strong>).</div>
+    </div>
+    <div class="feature stock">
+      <div class="ftitle">The catch</div>
+      <div class="fbody">No promises. If the business struggles, your slice is worth less. Stocks swing — sometimes wildly.</div>
+    </div>
+    <div class="feature stock">
+      <div class="ftitle">Best for</div>
+      <div class="fbody">Long-term growth. Historically, stocks return ~7-10% per year on average — but with bumps.</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: Bonds -->
+  <section class="slide" data-slide="2">
+    <h1 class="eyebrow">Class 02 · Fixed Income</h1>
+    <h2>Bonds are <span class="green">loans</span>.</h2>
+    <p>A bond is an IOU. You hand money to a government or a company, and they promise to pay it back — plus interest — on a set date.</p>
+
+    <div class="visual-lending">
+      <div class="person">You</div>
+      <span class="arrow">→ $ →</span>
+      <div class="building">🏛️</div>
+      <span class="arrow">← $+% ←</span>
+      <div class="person">You</div>
+    </div>
+    <div class="flow-label">You lend money · They pay regular interest · You get your money back at the end</div>
+
+    <div class="feature bond">
+      <div class="ftitle">How you make money</div>
+      <div class="fbody">Fixed interest payments (called the <strong>coupon</strong>) on a schedule, plus your original loan returned at the end.</div>
+    </div>
+    <div class="feature bond">
+      <div class="ftitle">The catch</div>
+      <div class="fbody">Lower returns than stocks. And if the borrower goes bankrupt, you might not get paid back.</div>
+    </div>
+    <div class="feature bond">
+      <div class="ftitle">Best for</div>
+      <div class="fbody">Predictability and protection. Historically, bonds return ~3-5% per year — steadier, gentler.</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: Interactive Simulator -->
+  <section class="slide" data-slide="3">
+    <h1 class="eyebrow">Try It · See How They Move</h1>
+    <h2>The same <span class="italic">$1,000</span>, ten years.</h2>
+    <p>Hit <em>Run</em> to simulate ten years in the market. Stocks (orange) jump around but tend to climb higher. Bonds (green) creep up steadily.</p>
+
+    <div class="sim">
+      <div class="sim-head">
+        <span class="sim-title">Portfolio Sim</span>
+        <button class="sim-btn" id="runSim">Run ↻</button>
+      </div>
+      <div class="sim-chart">
+        <svg id="chart" viewBox="0 0 300 140" preserveAspectRatio="none" style="width:100%;height:100%">
+          <line x1="0" y1="100" x2="300" y2="100" stroke="rgba(27,27,27,0.15)" stroke-dasharray="2 3"/>
+          <path id="stockLine" class="sim-line" stroke="#D8593B" d="" />
+          <path id="bondLine"  class="sim-line" stroke="#2F5D45" d="" />
+        </svg>
+      </div>
+      <div class="legend">
+        <span><i style="background:#D8593B"></i> Stocks: <strong id="stockEnd">—</strong></span>
+        <span><i style="background:#2F5D45"></i> Bonds: <strong id="bondEnd">—</strong></span>
+      </div>
+      <div class="scenario" id="scenario">Tap <strong>Run ↻</strong> to simulate.</div>
+    </div>
+
+    <p style="margin-top:16px; font-size:14px;">Run it a few times — that bumpy orange line is exactly why people <em>panic-sell</em> stocks. The steady green line is why bonds exist.</p>
+  </section>
+
+  <!-- SLIDE 5: Comparison -->
+  <section class="slide" data-slide="4">
+    <h1 class="eyebrow">Side By Side</h1>
+    <h2>The whole picture.</h2>
+    <p>Here's a cheat-sheet you can come back to.</p>
+
+    <div class="compare">
+      <div class="row header">
+        <div>Trait</div>
+        <div>Stocks</div>
+        <div>Bonds</div>
+      </div>
+      <div class="row">
+        <div class="k">What it is</div>
+        <div class="col-stock">Ownership</div>
+        <div class="col-bond">A loan</div>
+      </div>
+      <div class="row">
+        <div class="k">Income</div>
+        <div class="col-stock">Dividends (maybe)</div>
+        <div class="col-bond">Fixed interest</div>
+      </div>
+      <div class="row">
+        <div class="k">Risk</div>
+        <div class="col-stock">Higher</div>
+        <div class="col-bond">Lower</div>
+      </div>
+      <div class="row">
+        <div class="k">Avg return</div>
+        <div class="col-stock">~7-10%/yr</div>
+        <div class="col-bond">~3-5%/yr</div>
+      </div>
+      <div class="row">
+        <div class="k">If company fails</div>
+        <div class="col-stock">Lose your slice</div>
+        <div class="col-bond">Paid before stockholders</div>
+      </div>
+      <div class="row">
+        <div class="k">Time horizon</div>
+        <div class="col-stock">Long (10+ yrs)</div>
+        <div class="col-bond">Short to medium</div>
+      </div>
+    </div>
+    <p style="margin-top:14px; font-size:14px; font-style:italic;">Most investors don't choose one or the other — they hold a mix, leaning more toward stocks when young, more toward bonds approaching retirement.</p>
+  </section>
+
+  <!-- SLIDE 6: Quiz Q1 -->
+  <section class="slide" data-slide="5">
+    <div class="qcount">Quick Check · 1 of 3</div>
+    <div class="quiz-q">If you buy a share of a company, you are…</div>
+    <div class="options" data-q="1" data-correct="1">
+      <button class="opt">Lending money to the company</button>
+      <button class="opt">An owner of a tiny piece of the company</button>
+      <button class="opt">Guaranteed a fixed return each year</button>
+    </div>
+    <div class="feedback"></div>
+  </section>
+
+  <!-- SLIDE 7: Quiz Q2 -->
+  <section class="slide" data-slide="6">
+    <div class="qcount">Quick Check · 2 of 3</div>
+    <div class="quiz-q">Which is generally <em>less</em> risky?</div>
+    <div class="options" data-q="2" data-correct="1">
+      <button class="opt">Stocks — they're backed by the company</button>
+      <button class="opt">Bonds — borrowers must pay you back</button>
+      <button class="opt">They carry the exact same risk</button>
+    </div>
+    <div class="feedback"></div>
+  </section>
+
+  <!-- SLIDE 8: Quiz Q3 -->
+  <section class="slide" data-slide="7">
+    <div class="qcount">Quick Check · 3 of 3</div>
+    <div class="quiz-q">A bond's "coupon" is…</div>
+    <div class="options" data-q="3" data-correct="1">
+      <button class="opt">A discount you get on your purchase</button>
+      <button class="opt">The interest payment the borrower owes you</button>
+      <button class="opt">A share of the company's profits</button>
+    </div>
+    <div class="feedback"></div>
+  </section>
+
+  <!-- SLIDE 9: Final -->
+  <section class="slide" data-slide="8">
+    <h1 class="eyebrow">You Made It</h1>
+    <h2>Nicely done.</h2>
+    <div class="scorecard">
+      <div class="big" id="finalScore">0/3</div>
+      <div class="small">questions correct</div>
+    </div>
+    <p>The two big ideas to walk away with:</p>
+    <div class="feature stock">
+      <div class="ftitle">Stocks = ownership</div>
+      <div class="fbody">Higher possible returns, bumpier ride.</div>
+    </div>
+    <div class="feature bond">
+      <div class="ftitle">Bonds = lending</div>
+      <div class="fbody">Lower returns, steadier payments.</div>
+    </div>
+    <p style="margin-top:14px; font-size:14px;">Everything else in investing — ETFs, mutual funds, index funds, 401(k)s — is mostly just <em>bundles</em> of these two things.</p>
+    <button class="btn primary" id="restart" style="margin-top:14px; width:100%;">Start Over ↻</button>
+  </section>
+
+</div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="btn" id="back">← Back</button>
+    <button class="btn primary" id="next">Next →</button>
+  </div>
+</nav>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let score = 0;
+  let answered = {}; // track which quiz slides have been answered
+
+  const progress = document.getElementById('progress');
+  // Build progress dots only for the content slides (exclude final)
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    progress.appendChild(d);
+  }
+  const dots = progress.querySelectorAll('.dot');
+
+  const backBtn = document.getElementById('back');
+  const nextBtn = document.getElementById('next');
+
+  function go(n) {
+    if (n < 0 || n >= total) return;
+    slides[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    updateDots();
+    updateNav();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+  function updateDots() {
+    dots.forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+      d.classList.toggle('done', i < current);
+    });
+  }
+  function updateNav() {
+    backBtn.disabled = current === 0;
+    nextBtn.textContent = current === total - 1 ? 'Done ✓' : 'Next →';
+    // disable next on unanswered quiz slides
+    const slide = slides[current];
+    const isQuiz = slide.querySelector('.options');
+    if (isQuiz && !answered[isQuiz.dataset.q]) {
+      nextBtn.disabled = true;
+    } else {
+      nextBtn.disabled = false;
+    }
+  }
+  backBtn.addEventListener('click', () => go(current - 1));
+  nextBtn.addEventListener('click', () => {
+    if (current === total - 1) {
+      // do nothing on last
+      return;
+    }
+    go(current + 1);
+  });
+
+  /* Quiz logic */
+  document.querySelectorAll('.options').forEach(group => {
+    const correct = parseInt(group.dataset.correct, 10);
+    const qid = group.dataset.q;
+    const feedback = group.parentElement.querySelector('.feedback');
+    const opts = group.querySelectorAll('.opt');
+    opts.forEach((btn, idx) => {
+      btn.addEventListener('click', () => {
+        if (answered[qid]) return;
+        answered[qid] = true;
+        opts.forEach(b => b.disabled = true);
+        if (idx === correct) {
+          btn.classList.add('correct');
+          score++;
+          feedback.textContent = "Correct. " + correctExplanation(qid);
+        } else {
+          btn.classList.add('wrong');
+          opts[correct].classList.add('correct');
+          feedback.textContent = "Not quite. " + correctExplanation(qid);
+        }
+        feedback.classList.add('show');
+        updateNav();
+        document.getElementById('finalScore').textContent = score + '/3';
+      });
+    });
+  });
+  function correctExplanation(q) {
+    if (q === '1') return "Buying a share = becoming a part-owner of the company.";
+    if (q === '2') return "Bonds are generally less risky — but lower returns is the trade-off.";
+    if (q === '3') return "The coupon is the regular interest payment the bond issuer owes you.";
+    return "";
+  }
+
+  /* Restart */
+  document.getElementById('restart').addEventListener('click', () => {
+    answered = {};
+    score = 0;
+    document.getElementById('finalScore').textContent = '0/3';
+    document.querySelectorAll('.opt').forEach(b => {
+      b.classList.remove('correct','wrong');
+      b.disabled = false;
+    });
+    document.querySelectorAll('.feedback').forEach(f => f.classList.remove('show'));
+    go(0);
+  });
+
+  /* Simulator */
+  function runSimulation() {
+    const years = 10;
+    const start = 1000;
+    let stock = [start], bond = [start];
+    for (let i = 1; i <= years; i++) {
+      // stock: mean ~9%, stdev ~18% (wide swings)
+      const sReturn = randNormal(0.09, 0.18);
+      stock.push(stock[i-1] * (1 + sReturn));
+      // bond: mean ~4%, stdev ~3% (tight)
+      const bReturn = randNormal(0.04, 0.03);
+      bond.push(bond[i-1] * (1 + bReturn));
+    }
+    drawLine('stockLine', stock);
+    drawLine('bondLine', bond);
+
+    const sEnd = stock[stock.length-1];
+    const bEnd = bond[bond.length-1];
+    document.getElementById('stockEnd').textContent = '$' + Math.round(sEnd).toLocaleString();
+    document.getElementById('bondEnd').textContent  = '$' + Math.round(bEnd).toLocaleString();
+
+    let msg = "";
+    if (sEnd > bEnd * 1.3) msg = "Stocks crushed it this run — but look at the rollercoaster.";
+    else if (sEnd > bEnd)   msg = "Stocks edged out bonds, but the path was bumpy.";
+    else if (sEnd < bEnd * 0.85) msg = "Bad decade for stocks! Bonds came out ahead. This does happen.";
+    else                    msg = "Bonds beat stocks here. It's not always a stock-market party.";
+    document.getElementById('scenario').textContent = msg;
+  }
+  function drawLine(id, values) {
+    const max = Math.max(...values, 2000);
+    const min = Math.min(...values, 800);
+    const range = max - min || 1;
+    const pts = values.map((v, i) => {
+      const x = (i / (values.length - 1)) * 300;
+      const y = 130 - ((v - min) / range) * 110 - 10;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    });
+    const d = 'M ' + pts.join(' L ');
+    const path = document.getElementById(id);
+    path.setAttribute('d', d);
+    // Reset and replay draw animation
+    const length = path.getTotalLength();
+    path.style.strokeDasharray = length;
+    path.style.strokeDashoffset = length;
+    path.getBoundingClientRect();
+    path.style.transition = 'stroke-dashoffset 1.2s ease';
+    path.style.strokeDashoffset = 0;
+  }
+  function randNormal(mean, stdev) {
+    // Box-Muller
+    let u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    const z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    return mean + z * stdev;
+  }
+  document.getElementById('runSim').addEventListener('click', runSimulation);
+
+  updateDots();
+  updateNav();
+</script>
+
+</body>
+</html>

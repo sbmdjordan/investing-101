@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Investing 101 — A Beginner's Course</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F2EBDD;
+    --paper: #EBE2D0;
+    --ink: #1B1B1B;
+    --ink-soft: #4A4843;
+    --bond: #2F5D45;
+    --stock: #D8593B;
+    --blue: #2F4858;
+    --recession: #8B2E2E;
+    --gold: #C8A95B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(27,27,27,0.06) 1px, transparent 0);
+    background-size: 22px 22px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .app {
+    position: relative;
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+    z-index: 1;
+  }
+
+  header.hero {
+    margin-bottom: 28px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 56px;
+    line-height: 0.98;
+    letter-spacing: -0.015em;
+    margin-bottom: 14px;
+  }
+  h1 .it { font-style: italic; }
+  h1 .green { font-style: italic; color: var(--bond); }
+  .intro {
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .meta {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-top: 14px;
+  }
+  .meta strong {
+    color: var(--ink);
+  }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 28px 0 18px;
+  }
+  .divider .line {
+    flex: 1;
+    height: 1.5px;
+    background: var(--ink);
+  }
+  .divider .label {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  /* Lesson cards */
+  .lessons {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .lesson {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 16px;
+    padding: 22px 22px 24px;
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: transform .15s, box-shadow .15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .lesson:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .lesson:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--ink);
+  }
+  .lesson .top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .lesson-num {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+  }
+  .lesson-time {
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    background: var(--cream);
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(27,27,27,0.2);
+  }
+  .lesson h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 1.05;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .lesson p {
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+  }
+  .lesson .tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--cream);
+    border: 1px solid rgba(27,27,27,0.2);
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* Color accents per lesson */
+  .lesson.l1 { border-left: 8px solid var(--stock); }
+  .lesson.l1 h2 .accent { font-style: italic; color: var(--stock); }
+
+  .lesson.l2 { border-left: 8px solid var(--blue); }
+  .lesson.l2 h2 .accent { font-style: italic; color: var(--blue); }
+
+  .lesson.l3 { border-left: 8px solid var(--gold); }
+  .lesson.l3 h2 .accent { font-style: italic; color: var(--gold); }
+
+  .lesson.l4 { border-left: 8px solid var(--recession); }
+  .lesson.l4 h2 .accent { font-style: italic; color: var(--recession); }
+
+  .lesson .arrow {
+    position: absolute;
+    bottom: 18px;
+    right: 22px;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ink);
+    opacity: 0.7;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 36px;
+    padding: 20px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  footer em {
+    font-family: 'Instrument Serif', serif;
+    font-size: 15px;
+    color: var(--ink);
+  }
+
+  /* Stamp - decorative */
+  .stamp {
+    display: inline-block;
+    border: 1.5px solid var(--ink);
+    padding: 6px 12px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink);
+    transform: rotate(-2deg);
+    background: var(--paper);
+    margin-bottom: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <header class="hero">
+    <span class="stamp">A 4-Part Course</span>
+    <h1><span class="it">Investing</span> for <span class="green">people who've never</span> invested.</h1>
+    <p class="intro">Four short, interactive lessons. No jargon, no upselling, no "buy my newsletter." Just the foundations — the kind of thing you wish someone had sat you down and explained.</p>
+    <p class="intro">Tap a lesson to begin. They each take about 5 minutes. You can do them in order or pick whichever looks interesting.</p>
+    <div class="meta">~20 min total · <strong>4 lessons</strong> · works on phones</div>
+  </header>
+
+  <div class="divider">
+    <span class="line"></span>
+    <span class="label">The Lessons</span>
+    <span class="line"></span>
+  </div>
+
+  <div class="lessons">
+
+    <a href="stocks-vs-bonds-lesson.html" class="lesson l1">
+      <div class="top-row">
+        <span class="lesson-num">Lesson One</span>
+        <span class="lesson-time">6 min</span>
+      </div>
+      <h2>Stocks <span class="accent">vs</span> Bonds</h2>
+      <p>The two big asset classes everyone talks about — what they actually are, how they make you money, and why most portfolios hold both.</p>
+      <div class="tags">
+        <span class="tag">Beginner</span>
+        <span class="tag">Foundations</span>
+        <span class="tag">Includes simulator</span>
+      </div>
+      <span class="arrow">Start →</span>
+    </a>
+
+    <a href="indexes-bonds-etfs.html" class="lesson l2">
+      <div class="top-row">
+        <span class="lesson-num">Lesson Two</span>
+        <span class="lesson-time">6 min</span>
+      </div>
+      <h2>Indexes, Bond Types <span class="accent">&</span> ETFs</h2>
+      <p>The S&P 500, the FTSE 100, government vs corporate bonds, and ETFs — the actual products you'll see when you open a brokerage app.</p>
+      <div class="tags">
+        <span class="tag">Beginner</span>
+        <span class="tag">Products</span>
+        <span class="tag">Real tickers</span>
+      </div>
+      <span class="arrow">Start →</span>
+    </a>
+
+    <a href="investing-vs-speculating.html" class="lesson l3">
+      <div class="top-row">
+        <span class="lesson-num">Lesson Three</span>
+        <span class="lesson-time">4 min</span>
+      </div>
+      <h2>Investing <span class="accent">vs</span> Speculating</h2>
+      <p>Benjamin Graham's clearest idea: most people who say "I invest" are really gambling. The difference, why it matters, and a quick sorting game.</p>
+      <div class="tags">
+        <span class="tag">Mindset</span>
+        <span class="tag">Graham</span>
+        <span class="tag">Short read</span>
+      </div>
+      <span class="arrow">Start →</span>
+    </a>
+
+    <a href="recessions-and-mr-market.html" class="lesson l4">
+      <div class="top-row">
+        <span class="lesson-num">Lesson Four</span>
+        <span class="lesson-time">7 min</span>
+      </div>
+      <h2>Recessions <span class="accent">&</span> Mr. Market</h2>
+      <p>Recessions happen on a schedule, not as a surprise. Pair that with Graham's "Mr. Market" framework and crashes start looking like opportunities.</p>
+      <div class="tags">
+        <span class="tag">History</span>
+        <span class="tag">Mindset</span>
+        <span class="tag">Interactive game</span>
+      </div>
+      <span class="arrow">Start →</span>
+    </a>
+
+  </div>
+
+  <footer>
+    <em>"The investor's chief problem — and even his worst enemy — is likely to be himself."</em><br>
+    — Benjamin Graham
+  </footer>
+
+</div>
+
+</body>
+</html>

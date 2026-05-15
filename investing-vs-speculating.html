@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Investing vs Speculating — Lesson 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F2EBDD;
+    --paper: #EBE2D0;
+    --ink: #1B1B1B;
+    --ink-soft: #4A4843;
+    --invest: #2F5D45;
+    --invest-soft: #DCE7DF;
+    --spec: #B23A2E;
+    --spec-soft: #F2D4CE;
+    --gold: #C8A95B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(27,27,27,0.06) 1px, transparent 0);
+    background-size: 22px 22px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .app {
+    position: relative;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 18px 18px 130px;
+    z-index: 1;
+  }
+  header.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 2px 18px;
+  }
+  .label {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .progress { display: flex; gap: 6px; }
+  .dot {
+    width: 22px; height: 4px;
+    background: rgba(27,27,27,0.15);
+    border-radius: 2px;
+    transition: background .3s;
+  }
+  .dot.active { background: var(--ink); }
+  .dot.done { background: var(--gold); }
+
+  .slide {
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 18px;
+    padding: 28px 22px;
+    box-shadow: 6px 6px 0 var(--ink);
+    min-height: 480px;
+    display: none;
+    animation: fadeIn .45s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  h1.eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 44px;
+    line-height: 1.0;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+  h2 .green { font-style: italic; color: var(--invest); }
+  h2 .red { font-style: italic; color: var(--spec); }
+  h2 .it { font-style: italic; }
+  p {
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  strong { color: var(--ink); font-weight: 700; }
+  em { font-style: italic; }
+
+  /* Cover: two-sided coin */
+  .cover-art {
+    height: 200px;
+    margin: 12px 0 22px;
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+  }
+  .face {
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    border: 2px solid var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 24px;
+    line-height: 1;
+    text-align: center;
+    padding: 10px;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .face.invest {
+    background: var(--invest);
+    color: #fff;
+    transform: rotate(-4deg);
+  }
+  .face.spec {
+    background: var(--spec);
+    color: #fff;
+    transform: rotate(4deg);
+  }
+  .vs-tag {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 32px;
+    color: var(--ink);
+    background: var(--cream);
+    padding: 2px 10px;
+    border-radius: 6px;
+    border: 1.5px solid var(--ink);
+    z-index: 2;
+  }
+
+  /* Pull quote */
+  .pullquote {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 24px;
+    line-height: 1.25;
+    color: var(--ink);
+    border-left: 4px solid var(--gold);
+    padding: 6px 0 6px 16px;
+    margin: 14px 0;
+  }
+  .pullquote .attr {
+    display: block;
+    font-style: normal;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-top: 8px;
+  }
+
+  /* Side by side */
+  .twocol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 14px 0;
+  }
+  .col {
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px 12px;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+  }
+  .col.invest { background: var(--invest-soft); }
+  .col.spec   { background: var(--spec-soft); }
+  .col .ctag {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+  .col .ctitle {
+    font-family: 'Instrument Serif', serif;
+    font-size: 28px;
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+  .col.invest .ctitle { color: var(--invest); }
+  .col.spec .ctitle   { color: var(--spec); }
+  .col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .col li {
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 5px 0 5px 16px;
+    position: relative;
+    color: var(--ink);
+  }
+  .col li::before {
+    position: absolute;
+    left: 0; top: 5px;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 14px;
+  }
+  .col.invest li::before { content: "✓"; color: var(--invest); }
+  .col.spec li::before   { content: "✗"; color: var(--spec); }
+
+  /* Card / feature */
+  .feature {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .feature .ftitle {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .feature .fbody {
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .feature.green { border-left: 8px solid var(--invest); }
+  .feature.red   { border-left: 8px solid var(--spec); }
+  .feature.gold  { border-left: 8px solid var(--gold); }
+
+  /* Sort the cards game */
+  .sorter {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px;
+    margin: 14px 0;
+  }
+  .sorter-q {
+    font-family: 'Instrument Serif', serif;
+    font-size: 19px;
+    line-height: 1.25;
+    margin: 6px 0 14px;
+    color: var(--ink);
+    min-height: 50px;
+  }
+  .sorter-q .ex {
+    display: block;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 6px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .sorter-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .sorter-btn {
+    flex: 1;
+    padding: 14px 8px;
+    border: 1.5px solid var(--ink);
+    border-radius: 999px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform .12s, background .2s;
+  }
+  .sorter-btn.inv {
+    background: var(--invest);
+    color: #fff;
+    border-color: var(--invest);
+  }
+  .sorter-btn.spc {
+    background: var(--spec);
+    color: #fff;
+    border-color: var(--spec);
+  }
+  .sorter-btn:active { transform: scale(0.95); }
+  .sorter-btn:disabled { opacity: 0.4; cursor: default; }
+  .sorter-result {
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: var(--paper);
+    border-left: 4px solid var(--gold);
+    border-radius: 6px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    min-height: 50px;
+  }
+  .sorter-progress {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  /* Quiz */
+  .quiz-q {
+    font-family: 'Instrument Serif', serif;
+    font-size: 26px;
+    line-height: 1.15;
+    margin: 6px 0 18px;
+  }
+  .qcount {
+    font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 15px;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform .12s, background .2s;
+  }
+  .opt:hover { transform: translateX(2px); }
+  .opt.correct { background: var(--invest); color: #fff; border-color: var(--invest); }
+  .opt.wrong   { background: var(--spec-soft); border-color: var(--spec); }
+  .opt:disabled { cursor: default; }
+  .feedback {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: var(--cream);
+    border-left: 5px solid var(--gold);
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.5;
+    display: none;
+  }
+  .feedback.show { display: block; }
+
+  /* Final */
+  .scorecard {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 16px;
+    padding: 22px;
+    text-align: center;
+    margin: 14px 0;
+  }
+  .scorecard .big {
+    font-family: 'Instrument Serif', serif;
+    font-size: 60px;
+    line-height: 1;
+  }
+  .scorecard .small {
+    font-size: 11px; letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 4px;
+    opacity: 0.7;
+  }
+
+  /* Bottom nav */
+  .nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, transparent 0%, var(--cream) 30%);
+    padding: 24px 18px 18px;
+    z-index: 5;
+  }
+  .nav-inner {
+    max-width: 560px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+  }
+  .btn {
+    flex: 1;
+    padding: 14px;
+    border: 1.5px solid var(--ink);
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: var(--cream);
+    color: var(--ink);
+    transition: transform .15s, background .2s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn.primary {
+    background: var(--ink);
+    color: var(--cream);
+  }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <span class="label">Investing 101 · Lesson 03</span>
+    <div class="progress" id="progress"></div>
+  </header>
+
+  <!-- SLIDE 1: Intro -->
+  <section class="slide active" data-slide="0">
+    <h1 class="eyebrow">Lesson 03 · 4 min</h1>
+    <h2>Investing <span class="it">isn't</span> the same as <span class="red">gambling</span>.</h2>
+    <div class="cover-art">
+      <div class="face invest">Invest</div>
+      <div class="vs-tag">vs</div>
+      <div class="face spec">Speculate</div>
+    </div>
+    <p>Most people who say "I invest in stocks" are actually <em>speculating</em>. Benjamin Graham — the father of value investing — drew a sharp line between the two, and it's one of the most useful lines in finance.</p>
+    <p>This one's quick. Just the distinction, then you'll be able to spot it everywhere.</p>
+  </section>
+
+  <!-- SLIDE 2: Graham's definition -->
+  <section class="slide" data-slide="1">
+    <h1 class="eyebrow">Part 01 · Graham's Definition</h1>
+    <h2>The <span class="green">rule</span>.</h2>
+
+    <div class="pullquote">
+      "An investment operation is one which, upon thorough analysis, promises safety of principal and an adequate return. Operations not meeting these requirements are speculative."
+      <span class="attr">— Benjamin Graham, The Intelligent Investor</span>
+    </div>
+
+    <p>Three things make something a true <strong>investment</strong>:</p>
+    <div class="feature green">
+      <div class="ftitle">1. Thorough analysis</div>
+      <div class="fbody">You actually understand what you're buying — the business, the numbers, the risks.</div>
+    </div>
+    <div class="feature green">
+      <div class="ftitle">2. Safety of principal</div>
+      <div class="fbody">You're not at serious risk of losing your money outright. The downside is protected.</div>
+    </div>
+    <div class="feature green">
+      <div class="ftitle">3. An adequate return</div>
+      <div class="fbody">A reasonable, expected return — not a fantasy of getting rich quick.</div>
+    </div>
+    <p style="font-size: 14px;"><strong>If even one is missing, you're speculating.</strong></p>
+  </section>
+
+  <!-- SLIDE 3: Side by side -->
+  <section class="slide" data-slide="2">
+    <h1 class="eyebrow">Part 02 · The Contrast</h1>
+    <h2>Two different <span class="it">games</span>.</h2>
+
+    <div class="twocol">
+      <div class="col invest">
+        <div class="ctag">Investor</div>
+        <div class="ctitle">Buys a<br>business</div>
+        <ul>
+          <li>Researches first</li>
+          <li>Holds for years</li>
+          <li>Cares about earnings</li>
+          <li>Expects steady return</li>
+          <li>Calm in downturns</li>
+        </ul>
+      </div>
+      <div class="col spec">
+        <div class="ctag">Speculator</div>
+        <div class="ctitle">Bets on a<br>price</div>
+        <ul>
+          <li>Reacts to hype</li>
+          <li>Holds for hours / days</li>
+          <li>Cares about the chart</li>
+          <li>Hopes for a windfall</li>
+          <li>Panics in downturns</li>
+        </ul>
+      </div>
+    </div>
+
+    <p>The difference is what you're <em>actually</em> doing. An investor asks <em>"Is this a good business at a fair price?"</em> — a speculator asks <em>"Will someone pay me more for this tomorrow?"</em></p>
+  </section>
+
+  <!-- SLIDE 4: Sorter game -->
+  <section class="slide" data-slide="3">
+    <h1 class="eyebrow">Part 03 · Try It</h1>
+    <h2>Which is <span class="green">which</span>?</h2>
+    <p>Five scenarios. Tap whether it's investing or speculating.</p>
+
+    <div class="sorter">
+      <div class="sorter-progress" id="sortProg">Round 1 of 5</div>
+      <div class="sorter-q" id="sortQ">Loading…</div>
+      <div class="sorter-actions">
+        <button class="sorter-btn inv" data-pick="invest">Investing</button>
+        <button class="sorter-btn spc" data-pick="spec">Speculating</button>
+      </div>
+      <div class="sorter-result" id="sortResult">Tap your answer above.</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: It's a spectrum -->
+  <section class="slide" data-slide="4">
+    <h1 class="eyebrow">Part 04 · The Honest Bit</h1>
+    <h2>Speculating <span class="it">isn't</span> evil.</h2>
+    <p>Graham didn't say "never speculate." He said: <strong>know which one you're doing</strong>, and don't confuse the two.</p>
+
+    <div class="feature gold">
+      <div class="ftitle">His advice</div>
+      <div class="fbody">If you want to speculate, set aside a small "fun money" portion — maybe 5-10% of your savings — and play with that. Keep the rest as serious, boring, long-term investments.</div>
+    </div>
+
+    <div class="feature red">
+      <div class="ftitle">The mistake most people make</div>
+      <div class="fbody">They think they're investing when they're really just gambling with extra steps. They buy hot stocks on a tip, hold for a month, lose money, and blame "the market."</div>
+    </div>
+
+    <div class="pullquote">
+      "The intelligent investor is a realist who sells to optimists and buys from pessimists."
+      <span class="attr">— Benjamin Graham</span>
+    </div>
+  </section>
+
+  <!-- Quiz 1 -->
+  <section class="slide" data-slide="5">
+    <div class="qcount">Quick Check · 1 of 2</div>
+    <div class="quiz-q">According to Graham, the key feature of a true investment is…</div>
+    <div class="options" data-q="1" data-correct="1">
+      <button class="opt">Holding for at least one month</button>
+      <button class="opt">Thorough analysis, safety of principal, and adequate return</button>
+      <button class="opt">Picking the stock that will rise the fastest</button>
+    </div>
+    <div class="feedback"></div>
+  </section>
+
+  <!-- Quiz 2 -->
+  <section class="slide" data-slide="6">
+    <div class="qcount">Quick Check · 2 of 2</div>
+    <div class="quiz-q">A friend says "I bought this crypto coin because it's trending on TikTok and could moon." This is…</div>
+    <div class="options" data-q="2" data-correct="1">
+      <button class="opt">A textbook investment</button>
+      <button class="opt">Speculating — no analysis, no safety, hoping for a windfall</button>
+      <button class="opt">Impossible to classify without more information</button>
+    </div>
+    <div class="feedback"></div>
+  </section>
+
+  <!-- Final -->
+  <section class="slide" data-slide="7">
+    <h1 class="eyebrow">You Made It</h1>
+    <h2>One <span class="green">distinction</span>, kept for life.</h2>
+    <div class="scorecard">
+      <div class="big" id="finalScore">0/2</div>
+      <div class="small">questions correct</div>
+    </div>
+
+    <div class="feature green">
+      <div class="ftitle">Investing</div>
+      <div class="fbody">Buying ownership in something you understand, at a sensible price, expecting a reasonable return over time.</div>
+    </div>
+    <div class="feature red">
+      <div class="ftitle">Speculating</div>
+      <div class="fbody">Betting that a price will move in your favor — without serious analysis of <em>why</em>.</div>
+    </div>
+
+    <p style="margin-top:14px; font-size:14px;">Both are allowed. Just <em>know which one you're doing</em> — and never confuse the bulk of your savings with your gambling money.</p>
+
+    <button class="btn primary" id="restart" style="margin-top:14px; width:100%;">Start Over ↻</button>
+  </section>
+
+</div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="btn" id="back">← Back</button>
+    <button class="btn primary" id="next">Next →</button>
+  </div>
+</nav>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let score = 0;
+  let answered = {};
+
+  const progress = document.getElementById('progress');
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    progress.appendChild(d);
+  }
+  const dots = progress.querySelectorAll('.dot');
+
+  const backBtn = document.getElementById('back');
+  const nextBtn = document.getElementById('next');
+
+  function go(n) {
+    if (n < 0 || n >= total) return;
+    slides[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    updateDots();
+    updateNav();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+  function updateDots() {
+    dots.forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+      d.classList.toggle('done', i < current);
+    });
+  }
+  function updateNav() {
+    backBtn.disabled = current === 0;
+    nextBtn.textContent = current === total - 1 ? 'Done ✓' : 'Next →';
+    const slide = slides[current];
+    const isQuiz = slide.querySelector('.options');
+    nextBtn.disabled = !!(isQuiz && !answered[isQuiz.dataset.q]);
+  }
+  backBtn.addEventListener('click', () => go(current - 1));
+  nextBtn.addEventListener('click', () => {
+    if (current === total - 1) return;
+    go(current + 1);
+  });
+
+  /* Sorter game */
+  const scenarios = [
+    {
+      text: "You research a profitable company for two weeks, decide it's fairly priced, buy shares, and plan to hold for 10 years.",
+      answer: "invest",
+      explain: "Investing. Analysis, reasonable price, long horizon. Classic Graham."
+    },
+    {
+      text: "You see a meme stock trending on social media. You buy in, hoping to flip it for a quick profit next week.",
+      answer: "spec",
+      explain: "Speculating. No analysis — you're betting on what the crowd will do."
+    },
+    {
+      text: "You buy an S&P 500 ETF every month for 20 years, regardless of the news.",
+      answer: "invest",
+      explain: "Investing. Diversified, disciplined, long-term — textbook stuff."
+    },
+    {
+      text: "You day-trade options based on a chart pattern, holding positions for a few hours.",
+      answer: "spec",
+      explain: "Speculating. Short time horizon, no underlying business analysis, pure price-movement bet."
+    },
+    {
+      text: "You buy a UK government bond that pays 4% interest, planning to hold until it matures.",
+      answer: "invest",
+      explain: "Investing. Known cash flows, principal protected by a national government. Boring — and that's the point."
+    }
+  ];
+
+  let round = 0;
+  let sortScore = 0;
+  const sortQ = document.getElementById('sortQ');
+  const sortProg = document.getElementById('sortProg');
+  const sortResult = document.getElementById('sortResult');
+  const sortBtns = document.querySelectorAll('.sorter-btn');
+
+  function showRound() {
+    if (round >= scenarios.length) {
+      sortProg.textContent = "Complete";
+      sortQ.innerHTML = `You sorted <strong>${sortScore} of ${scenarios.length}</strong> correctly.`;
+      sortResult.textContent = sortScore === scenarios.length
+        ? "Perfect. You can spot the difference now — that puts you ahead of most people who own stocks."
+        : sortScore >= 3
+          ? "Solid. The line gets clearer the more you look for it."
+          : "Worth a re-read of the Graham definition. The pattern: ownership + analysis + time = investing. Everything else is some flavor of speculation.";
+      sortBtns.forEach(b => b.disabled = true);
+      return;
+    }
+    const s = scenarios[round];
+    sortProg.textContent = `Round ${round + 1} of ${scenarios.length}`;
+    sortQ.innerHTML = `"${s.text}"`;
+    sortResult.textContent = "Tap your answer above.";
+    sortBtns.forEach(b => b.disabled = false);
+  }
+
+  sortBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (round >= scenarios.length) return;
+      const pick = btn.dataset.pick;
+      const correct = scenarios[round].answer;
+      const isRight = pick === correct;
+      if (isRight) sortScore++;
+      sortResult.innerHTML = `<strong>${isRight ? "Correct." : "Not quite."}</strong> ${scenarios[round].explain}`;
+      sortBtns.forEach(b => b.disabled = true);
+      round++;
+      setTimeout(showRound, 1500);
+    });
+  });
+
+  showRound();
+
+  /* Quiz */
+  document.querySelectorAll('.options').forEach(group => {
+    const correct = parseInt(group.dataset.correct, 10);
+    const qid = group.dataset.q;
+    const feedback = group.parentElement.querySelector('.feedback');
+    const opts = group.querySelectorAll('.opt');
+    opts.forEach((btn, idx) => {
+      btn.addEventListener('click', () => {
+        if (answered[qid]) return;
+        answered[qid] = true;
+        opts.forEach(b => b.disabled = true);
+        if (idx === correct) {
+          btn.classList.add('correct');
+          score++;
+          feedback.textContent = "Correct. " + explain(qid);
+        } else {
+          btn.classList.add('wrong');
+          opts[correct].classList.add('correct');
+          feedback.textContent = "Not quite. " + explain(qid);
+        }
+        feedback.classList.add('show');
+        updateNav();
+        document.getElementById('finalScore').textContent = score + '/2';
+      });
+    });
+  });
+  function explain(q) {
+    if (q === '1') return "Graham's three pillars: thorough analysis, safety of principal, and an adequate (not amazing) expected return.";
+    if (q === '2') return "All speculation. There's no analysis of the underlying thing — just hope and crowd-following.";
+    return "";
+  }
+
+  document.getElementById('restart').addEventListener('click', () => {
+    answered = {}; score = 0;
+    document.getElementById('finalScore').textContent = '0/2';
+    document.querySelectorAll('.opt').forEach(b => {
+      b.classList.remove('correct','wrong');
+      b.disabled = false;
+    });
+    document.querySelectorAll('.feedback').forEach(f => f.classList.remove('show'));
+    round = 0; sortScore = 0;
+    showRound();
+    go(0);
+  });
+
+  updateDots();
+  updateNav();
+</script>
+
+</body>
+</html>

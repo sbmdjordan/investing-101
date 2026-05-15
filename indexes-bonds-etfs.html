@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Indexes, Bonds & ETFs — Lesson 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F2EBDD;
+    --paper: #EBE2D0;
+    --ink: #1B1B1B;
+    --ink-soft: #4A4843;
+    --bond: #2F5D45;
+    --bond-soft: #DCE7DF;
+    --stock: #D8593B;
+    --stock-soft: #F5DACF;
+    --gold: #C8A95B;
+    --blue: #2F4858;
+    --blue-soft: #D6DFE4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(27,27,27,0.06) 1px, transparent 0);
+    background-size: 22px 22px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .app {
+    position: relative;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 18px 18px 130px;
+    z-index: 1;
+  }
+  header.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 2px 18px;
+  }
+  .label {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .progress { display: flex; gap: 6px; }
+  .dot {
+    width: 22px; height: 4px;
+    background: rgba(27,27,27,0.15);
+    border-radius: 2px;
+    transition: background .3s;
+  }
+  .dot.active { background: var(--ink); }
+  .dot.done { background: var(--gold); }
+
+  .slide {
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 18px;
+    padding: 28px 22px;
+    box-shadow: 6px 6px 0 var(--ink);
+    min-height: 480px;
+    display: none;
+    animation: fadeIn .45s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  h1.eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 40px;
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+  h2 .it { font-style: italic; }
+  h2 .green { font-style: italic; color: var(--bond); }
+  h2 .orange { font-style: italic; color: var(--stock); }
+  h2 .blue { font-style: italic; color: var(--blue); }
+  p {
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  strong { color: var(--ink); font-weight: 700; }
+  em { font-style: italic; }
+
+  /* Cover art - basket of companies */
+  .cover {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 14px;
+    padding: 18px;
+    margin: 12px 0 18px;
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+  }
+  .cover .basket {
+    position: absolute;
+    bottom: 18px; left: 50%;
+    transform: translateX(-50%);
+    width: 200px; height: 70px;
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 4px 4px 60px 60px / 4px 4px 30px 30px;
+  }
+  .cover .basket::after {
+    content: "INDEX";
+    position: absolute;
+    bottom: 6px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--ink-soft);
+  }
+  .tile {
+    position: absolute;
+    width: 38px; height: 38px;
+    border: 1.5px solid var(--ink);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ink);
+    background: var(--stock-soft);
+    animation: drop 2.6s ease-in-out infinite;
+  }
+  .tile.t1 { left: 30px;  top: 30px; background: var(--stock-soft); animation-delay: 0s; }
+  .tile.t2 { left: 90px;  top: 18px; background: var(--bond-soft); animation-delay: 0.2s; }
+  .tile.t3 { left: 150px; top: 34px; background: var(--blue-soft); animation-delay: 0.4s; }
+  .tile.t4 { left: 210px; top: 22px; background: #F1E0B8; animation-delay: 0.6s; }
+  .tile.t5 { left: 270px; top: 38px; background: var(--stock-soft); animation-delay: 0.8s; }
+  .tile.t6 { left: 350px; top: 28px; background: var(--bond-soft); animation-delay: 1.0s; }
+  @keyframes drop {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(6px); }
+  }
+
+  /* Feature cards */
+  .feature {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .feature .ftitle {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .feature .fbody {
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .feature.green  { border-left: 8px solid var(--bond); }
+  .feature.orange { border-left: 8px solid var(--stock); }
+  .feature.blue   { border-left: 8px solid var(--blue); }
+  .feature.gold   { border-left: 8px solid var(--gold); }
+
+  /* Index card */
+  .index-card {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .index-card .flag {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    font-size: 22px;
+  }
+  .index-card .iname {
+    font-family: 'Instrument Serif', serif;
+    font-size: 24px;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .index-card .icountry {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .index-card .idesc {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .index-card .idesc b {
+    color: var(--ink);
+  }
+
+  /* Tab switcher (bonds) */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin: 8px 0 14px;
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    padding: 4px;
+    border-radius: 999px;
+  }
+  .tab {
+    flex: 1;
+    padding: 9px 6px;
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .tab.active {
+    background: var(--ink);
+    color: var(--cream);
+  }
+  .bond-panel {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 16px;
+    display: none;
+    animation: fadeIn .3s ease both;
+  }
+  .bond-panel.active { display: block; }
+  .bond-panel h3 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 26px;
+    line-height: 1.05;
+    margin-bottom: 4px;
+  }
+  .bond-panel .who {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .bond-panel p {
+    font-size: 14.5px;
+    margin-bottom: 8px;
+  }
+  .bond-meta {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--paper);
+    border: 1px solid rgba(27,27,27,0.2);
+    color: var(--ink);
+  }
+  .chip.risk-low { background: var(--bond-soft); }
+  .chip.risk-med { background: #F1E0B8; }
+  .chip.risk-high { background: var(--stock-soft); }
+
+  /* Diagram - ETF anatomy */
+  .etf-diagram {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 18px;
+    margin: 14px 0;
+  }
+  .etf-diagram .dtitle {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .etf-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .etf-mini {
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid var(--ink);
+    border-radius: 6px;
+    background: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 14px;
+  }
+  .etf-mini.s { background: var(--stock-soft); }
+  .etf-mini.b { background: var(--bond-soft); }
+  .etf-arrow {
+    text-align: center;
+    font-size: 22px;
+    color: var(--ink-soft);
+    margin: -4px 0 4px;
+  }
+  .etf-fund {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 14px 18px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .etf-shares {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .etf-share {
+    width: 50px; height: 60px;
+    border: 1.5px solid var(--ink);
+    border-radius: 6px;
+    background: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink);
+    transform: rotate(-2deg);
+  }
+  .etf-share:nth-child(2) { transform: rotate(1deg); }
+  .etf-share:nth-child(3) { transform: rotate(-1deg); }
+
+  /* Compare table */
+  .compare {
+    margin-top: 14px;
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--cream);
+  }
+  .compare .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid rgba(27,27,27,0.15);
+  }
+  .compare .row:last-child { border-bottom: none; }
+  .compare .row > div {
+    padding: 10px 8px;
+    font-size: 12.5px;
+    line-height: 1.35;
+  }
+  .compare .row.header > div {
+    font-weight: 700;
+    background: var(--ink);
+    color: var(--cream);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .compare .row > div.k {
+    background: var(--paper);
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 12px;
+  }
+
+  /* Quiz */
+  .quiz-q {
+    font-family: 'Instrument Serif', serif;
+    font-size: 26px;
+    line-height: 1.15;
+    margin: 6px 0 18px;
+  }
+  .qcount {
+    font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 15px;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform .12s, background .2s;
+  }
+  .opt:hover { transform: translateX(2px); }
+  .opt.correct { background: var(--bond); color: #fff; border-color: var(--bond); }
+  .opt.wrong   { background: var(--stock-soft); border-color: var(--stock); }
+  .opt:disabled { cursor: default; }
+  .feedback {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: var(--cream);
+    border-left: 5px solid var(--gold);
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.5;
+    display: none;
+  }
+  .feedback.show { display: block; }
+
+  /* Final */
+  .scorecard {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    margin: 14px 0;
+  }
+  .scorecard .big {
+    font-family: 'Instrument Serif', serif;
+    font-size: 64px;
+    line-height: 1;
+  }
+  .scorecard .small {
+    font-size: 12px; letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 4px;
+    opacity: 0.7;
+  }
+
+  /* Bottom nav */
+  .nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, transparent 0%, var(--cream) 30%);
+    padding: 24px 18px 18px;
+    z-index: 5;
+  }
+  .nav-inner {
+    max-width: 560px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+  }
+  .btn {
+    flex: 1;
+    padding: 14px;
+    border: 1.5px solid var(--ink);
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: var(--cream);
+    color: var(--ink);
+    transition: transform .15s, background .2s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn.primary {
+    background: var(--ink);
+    color: var(--cream);
+  }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .pullquote {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1.25;
+    color: var(--ink);
+    border-left: 4px solid var(--gold);
+    padding: 6px 0 6px 16px;
+    margin: 14px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <span class="label">Investing 101 · Lesson 02</span>
+    <div class="progress" id="progress"></div>
+  </header>
+
+  <!-- SLIDE 1: Intro -->
+  <section class="slide active" data-slide="0">
+    <h1 class="eyebrow">Lesson 02 · 6 min</h1>
+    <h2>The <span class="it">things</span> you can actually <span class="green">buy</span>.</h2>
+    <div class="cover">
+      <div class="tile t1">A</div>
+      <div class="tile t2">B</div>
+      <div class="tile t3">C</div>
+      <div class="tile t4">D</div>
+      <div class="tile t5">E</div>
+      <div class="tile t6">F</div>
+      <div class="basket"></div>
+    </div>
+    <p>Lesson 1 covered the two big ideas: <strong>stocks</strong> (ownership) and <strong>bonds</strong> (loans). This lesson covers the actual products you'll see when you open a brokerage app.</p>
+    <p>Three things to know:</p>
+    <div class="feature orange">
+      <div class="ftitle">Indexes — how the market is measured</div>
+      <div class="fbody">S&P 500, FTSE 100, Nasdaq, etc.</div>
+    </div>
+    <div class="feature green">
+      <div class="ftitle">Bond types — who you're lending to</div>
+      <div class="fbody">Governments, companies, safe, risky.</div>
+    </div>
+    <div class="feature blue">
+      <div class="ftitle">ETFs — the easiest way to buy a lot at once</div>
+      <div class="fbody">One purchase, hundreds of holdings.</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2: What is an index? -->
+  <section class="slide" data-slide="1">
+    <h1 class="eyebrow">Part 01 · Indexes</h1>
+    <h2>An index is a <span class="orange">scoreboard</span>.</h2>
+    <p>An index doesn't <em>do</em> anything. It's just a number that tracks a basket of companies, so people can answer the question: <em>"How is the market doing today?"</em></p>
+    <p>When the news says <strong>"the market was up 1.2% today"</strong>, they don't mean every stock on Earth. They mean one specific index — usually the S&P 500.</p>
+
+    <div class="feature gold">
+      <div class="ftitle">Think of it like a sports league</div>
+      <div class="fbody">The S&P 500 is the league table of the top 500 U.S. companies. The FTSE 100 is the top 100 in the UK. The number rises and falls based on how those companies' shares are doing.</div>
+    </div>
+
+    <p>You can't buy "an index" directly — it's just a measurement. But you <em>can</em> buy something that <strong>tracks</strong> an index, which is where ETFs come in (we'll get there).</p>
+  </section>
+
+  <!-- SLIDE 3: The major indexes -->
+  <section class="slide" data-slide="2">
+    <h1 class="eyebrow">Part 01 · The Big Ones</h1>
+    <h2>The indexes you'll hear about.</h2>
+
+    <div class="index-card">
+      <span class="flag">🇺🇸</span>
+      <div class="iname">S&P 500</div>
+      <div class="icountry">United States</div>
+      <div class="idesc"><b>500 largest U.S. companies.</b> The most-watched index in the world. Apple, Microsoft, Amazon, Google, etc.</div>
+    </div>
+
+    <div class="index-card">
+      <span class="flag">🇺🇸</span>
+      <div class="iname">Nasdaq 100</div>
+      <div class="icountry">United States · Tech-heavy</div>
+      <div class="idesc"><b>100 biggest non-financial companies</b> on the Nasdaq exchange. Skewed toward tech, so it swings harder than the S&P.</div>
+    </div>
+
+    <div class="index-card">
+      <span class="flag">🇺🇸</span>
+      <div class="iname">Dow Jones</div>
+      <div class="icountry">United States · The old one</div>
+      <div class="idesc"><b>Just 30 large U.S. companies.</b> Famous, but a bit outdated — it's the index your grandfather followed.</div>
+    </div>
+
+    <div class="index-card">
+      <span class="flag">🇬🇧</span>
+      <div class="iname">FTSE 100</div>
+      <div class="icountry">United Kingdom</div>
+      <div class="idesc"><b>100 largest companies on the London Stock Exchange.</b> Heavy on banks, oil, and mining. Pronounced "Footsie."</div>
+    </div>
+
+    <div class="index-card">
+      <span class="flag">🌍</span>
+      <div class="iname">MSCI World</div>
+      <div class="icountry">Global · Developed markets</div>
+      <div class="idesc"><b>~1,400 big companies across 23 developed countries.</b> One number to track the whole rich world's stock markets.</div>
+    </div>
+
+    <p style="font-size:13.5px; margin-top: 4px;"><em>Others worth knowing:</em> Japan's Nikkei 225, Germany's DAX 40, Europe's STOXX 600, China's Hang Seng.</p>
+  </section>
+
+  <!-- SLIDE 4: Bonds intro -->
+  <section class="slide" data-slide="3">
+    <h1 class="eyebrow">Part 02 · Bonds</h1>
+    <h2>Not all <span class="green">loans</span> are equal.</h2>
+    <p>From Lesson 1: a bond is a loan. But who you're lending to <em>massively</em> changes the deal. A loan to the U.S. government is one thing. A loan to a struggling startup is another.</p>
+    <p>Tap each tab to see the main types — from safest to riskiest.</p>
+
+    <div class="tabs" id="bondTabs">
+      <button class="tab active" data-tab="gov">Government</button>
+      <button class="tab" data-tab="muni">Municipal</button>
+      <button class="tab" data-tab="corp">Corporate</button>
+      <button class="tab" data-tab="junk">High-Yield</button>
+    </div>
+
+    <div class="bond-panel active" data-panel="gov">
+      <div class="who">Government Bonds · Safest</div>
+      <h3>Lending to a country.</h3>
+      <p>The borrower is a national government — the U.S., the UK, etc. They print the money they pay you back with, so the chance of default is very low.</p>
+      <p>You'll hear these called <strong>Treasuries</strong> (U.S.), <strong>Gilts</strong> (UK), or <strong>Bunds</strong> (Germany).</p>
+      <div class="bond-meta">
+        <span class="chip risk-low">Risk: very low</span>
+        <span class="chip">Return: low</span>
+        <span class="chip">Use: safety</span>
+      </div>
+    </div>
+
+    <div class="bond-panel" data-panel="muni">
+      <div class="who">Municipal Bonds · Safer</div>
+      <h3>Lending to a city or state.</h3>
+      <p>The borrower is a city, county, or state — funding things like schools, roads, or hospitals. Slightly riskier than national bonds but often <strong>tax-free</strong> in the U.S.</p>
+      <p>Mostly a U.S. concept. The UK equivalent is rarer.</p>
+      <div class="bond-meta">
+        <span class="chip risk-low">Risk: low</span>
+        <span class="chip">Return: low-med</span>
+        <span class="chip">Use: tax efficiency</span>
+      </div>
+    </div>
+
+    <div class="bond-panel" data-panel="corp">
+      <div class="who">Corporate Bonds · Medium</div>
+      <h3>Lending to a company.</h3>
+      <p>The borrower is a company — Apple, Coca-Cola, Tesco. They pay you more interest than governments do, because they can go bankrupt.</p>
+      <p><strong>"Investment grade"</strong> means rated safe by agencies like Moody's or S&P. These are solid, established businesses.</p>
+      <div class="bond-meta">
+        <span class="chip risk-med">Risk: medium</span>
+        <span class="chip">Return: medium</span>
+        <span class="chip">Use: steady income</span>
+      </div>
+    </div>
+
+    <div class="bond-panel" data-panel="junk">
+      <div class="who">High-Yield (a.k.a. "Junk") · Riskiest</div>
+      <h3>Lending to risky borrowers.</h3>
+      <p>The borrower is a company with weaker finances — startups, turnarounds, heavily indebted businesses. They have to offer high interest to convince anyone to lend.</p>
+      <p>"Junk" is the unflattering nickname. The official term is <strong>high-yield</strong>. More potential return, more potential disaster.</p>
+      <div class="bond-meta">
+        <span class="chip risk-high">Risk: high</span>
+        <span class="chip">Return: high</span>
+        <span class="chip">Use: yield hunting</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: ETF intro -->
+  <section class="slide" data-slide="4">
+    <h1 class="eyebrow">Part 03 · ETFs</h1>
+    <h2>ETFs are <span class="blue">baskets</span>.</h2>
+    <p>An ETF (<strong>Exchange-Traded Fund</strong>) is a single product that holds dozens or thousands of investments inside it. You buy one share of the ETF — and you instantly own a tiny slice of everything inside.</p>
+
+    <div class="etf-diagram">
+      <div class="dtitle">How an ETF Works</div>
+      <div class="etf-row">
+        <div class="etf-mini s">A</div>
+        <div class="etf-mini s">B</div>
+        <div class="etf-mini s">C</div>
+        <div class="etf-mini b">D</div>
+        <div class="etf-mini s">E</div>
+        <div class="etf-mini b">F</div>
+        <div class="etf-mini s">G</div>
+        <div class="etf-mini s">H</div>
+      </div>
+      <div class="etf-arrow">↓</div>
+      <div class="etf-fund">Bundled into one ETF</div>
+      <div class="etf-arrow">↓</div>
+      <div class="etf-shares">
+        <div class="etf-share">You</div>
+        <div class="etf-share">Me</div>
+        <div class="etf-share">Her</div>
+      </div>
+      <div style="text-align:center; font-size:12px; color:var(--ink-soft); margin-top: 8px; font-style:italic;">Each investor buys shares of the basket on a normal exchange.</div>
+    </div>
+
+    <div class="feature blue">
+      <div class="ftitle">Why people love them</div>
+      <div class="fbody">Instant diversification, low fees, trades like a normal stock, no minimum investment beyond one share.</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: ETF types -->
+  <section class="slide" data-slide="5">
+    <h1 class="eyebrow">Part 03 · Flavors</h1>
+    <h2>ETFs for nearly <span class="it">anything</span>.</h2>
+    <p>The most common types he'll see:</p>
+
+    <div class="feature orange">
+      <div class="ftitle">Index ETFs</div>
+      <div class="fbody">Track an index like the S&P 500. You buy one share, you own a piece of all 500 companies. Examples: <strong>VOO, SPY</strong> (S&P 500), <strong>VUSA</strong> (S&P 500 for UK investors).</div>
+    </div>
+    <div class="feature green">
+      <div class="ftitle">Bond ETFs</div>
+      <div class="fbody">Hold a bundle of bonds — government, corporate, or both. Example: <strong>BND</strong> holds thousands of U.S. bonds.</div>
+    </div>
+    <div class="feature blue">
+      <div class="ftitle">Sector ETFs</div>
+      <div class="fbody">Focus on one industry: tech, healthcare, energy, etc. Riskier because you're not diversified across the whole economy.</div>
+    </div>
+    <div class="feature gold">
+      <div class="ftitle">Country / Region ETFs</div>
+      <div class="fbody">Track foreign markets. <strong>ISF</strong> tracks the FTSE 100. <strong>VWRL</strong> tracks the whole world's stock markets in one product.</div>
+    </div>
+
+    <div class="pullquote">
+      The simplest beginner strategy in existence: buy one global index ETF every month. Done.
+    </div>
+  </section>
+
+  <!-- SLIDE 7: Comparison -->
+  <section class="slide" data-slide="6">
+    <h1 class="eyebrow">Side By Side</h1>
+    <h2>Putting it together.</h2>
+    <p>What you're <em>actually</em> buying when you click "buy" on each:</p>
+
+    <div class="compare">
+      <div class="row header">
+        <div>Product</div>
+        <div>You own…</div>
+        <div>Diversified?</div>
+      </div>
+      <div class="row">
+        <div class="k">A stock</div>
+        <div>One company</div>
+        <div>No</div>
+      </div>
+      <div class="row">
+        <div class="k">A bond</div>
+        <div>One loan</div>
+        <div>No</div>
+      </div>
+      <div class="row">
+        <div class="k">An index ETF</div>
+        <div>All companies in the index</div>
+        <div>Yes</div>
+      </div>
+      <div class="row">
+        <div class="k">A bond ETF</div>
+        <div>Thousands of loans</div>
+        <div>Yes</div>
+      </div>
+    </div>
+
+    <p style="margin-top:16px; font-size:14.5px;">For a beginner: an ETF that tracks a major index (S&P 500, FTSE 100, or MSCI World) is usually a sensible starting point. One purchase, instantly spread across hundreds of companies.</p>
+  </section>
+
+  <!-- Quiz 1 -->
+  <section class="slide" data-slide="7">
+    <div class="qcount">Quick Check · 1 of 3</div>
+    <div class="quiz-q">The FTSE 100 tracks…</div>
+    <div class="options" data-q="1" data-correct="1">
+      <button class="opt">The 100 biggest U.S. companies</button>
+      <button class="opt">The 100 largest companies on the London Stock Exchange</button>
+      <button class="opt">100 random global tech companies</button>
+    </div>
+    <div class="feedback"></div>
+  </section>
+
+  <!-- Quiz 2 -->
+  <section class="slide" data-slide="8">
+    <div class="qcount">Quick Check · 2 of 3</div>
+    <div class="quiz-q">Which type of bond is generally the <em>safest</em>?</div>
+    <div class="options" data-q="2" data-correct="0">
+      <button class="opt">Government bonds (like U.S. Treasuries or UK Gilts)</button>
+      <button class="opt">High-yield "junk" bonds</button>
+      <button class="opt">Corporate bonds from small companies</button>
+    </div>
+    <div class="feedback"></div>
+  </section>
+
+  <!-- Quiz 3 -->
+  <section class="slide" data-slide="9">
+    <div class="qcount">Quick Check · 3 of 3</div>
+    <div class="quiz-q">When you buy one share of an S&P 500 ETF, you…</div>
+    <div class="options" data-q="3" data-correct="2">
+      <button class="opt">Own only the single best-performing company in the index</button>
+      <button class="opt">Lend money to the U.S. government</button>
+      <button class="opt">Own a tiny piece of all 500 companies at once</button>
+    </div>
+    <div class="feedback"></div>
+  </section>
+
+  <!-- Final -->
+  <section class="slide" data-slide="10">
+    <h1 class="eyebrow">You Made It</h1>
+    <h2>Three concepts <span class="green">unlocked</span>.</h2>
+    <div class="scorecard">
+      <div class="big" id="finalScore">0/3</div>
+      <div class="small">questions correct</div>
+    </div>
+
+    <div class="feature orange">
+      <div class="ftitle">Indexes</div>
+      <div class="fbody">Scoreboards that track baskets of companies. S&P 500 (US), FTSE 100 (UK), MSCI World (global).</div>
+    </div>
+    <div class="feature green">
+      <div class="ftitle">Bond types</div>
+      <div class="fbody">Government (safest) → Municipal → Corporate → High-yield (riskiest). More risk = more return offered.</div>
+    </div>
+    <div class="feature blue">
+      <div class="ftitle">ETFs</div>
+      <div class="fbody">One-click baskets. Buy a single share, own dozens or thousands of underlying things. The easiest way to invest broadly.</div>
+    </div>
+
+    <p style="margin-top:14px; font-size:14px;">Coming up — <em>Lesson 3:</em> investing vs speculating (the line most people don't know exists), then <em>Lesson 4:</em> recessions & Mr. Market.</p>
+
+    <button class="btn primary" id="restart" style="margin-top:14px; width:100%;">Start Over ↻</button>
+  </section>
+
+</div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="btn" id="back">← Back</button>
+    <button class="btn primary" id="next">Next →</button>
+  </div>
+</nav>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let score = 0;
+  let answered = {};
+
+  const progress = document.getElementById('progress');
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    progress.appendChild(d);
+  }
+  const dots = progress.querySelectorAll('.dot');
+
+  const backBtn = document.getElementById('back');
+  const nextBtn = document.getElementById('next');
+
+  function go(n) {
+    if (n < 0 || n >= total) return;
+    slides[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    updateDots();
+    updateNav();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+  function updateDots() {
+    dots.forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+      d.classList.toggle('done', i < current);
+    });
+  }
+  function updateNav() {
+    backBtn.disabled = current === 0;
+    nextBtn.textContent = current === total - 1 ? 'Done ✓' : 'Next →';
+    const slide = slides[current];
+    const isQuiz = slide.querySelector('.options');
+    nextBtn.disabled = !!(isQuiz && !answered[isQuiz.dataset.q]);
+  }
+  backBtn.addEventListener('click', () => go(current - 1));
+  nextBtn.addEventListener('click', () => {
+    if (current === total - 1) return;
+    go(current + 1);
+  });
+
+  /* Bond tabs */
+  document.querySelectorAll('#bondTabs .tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      document.querySelectorAll('#bondTabs .tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.bond-panel').forEach(p => {
+        p.classList.toggle('active', p.dataset.panel === target);
+      });
+    });
+  });
+
+  /* Quiz */
+  document.querySelectorAll('.options').forEach(group => {
+    const correct = parseInt(group.dataset.correct, 10);
+    const qid = group.dataset.q;
+    const feedback = group.parentElement.querySelector('.feedback');
+    const opts = group.querySelectorAll('.opt');
+    opts.forEach((btn, idx) => {
+      btn.addEventListener('click', () => {
+        if (answered[qid]) return;
+        answered[qid] = true;
+        opts.forEach(b => b.disabled = true);
+        if (idx === correct) {
+          btn.classList.add('correct');
+          score++;
+          feedback.textContent = "Correct. " + explain(qid);
+        } else {
+          btn.classList.add('wrong');
+          opts[correct].classList.add('correct');
+          feedback.textContent = "Not quite. " + explain(qid);
+        }
+        feedback.classList.add('show');
+        updateNav();
+        document.getElementById('finalScore').textContent = score + '/3';
+      });
+    });
+  });
+  function explain(q) {
+    if (q === '1') return "The FTSE 100 is the UK's main index: the 100 biggest companies on the London Stock Exchange. 'Footsie' is how it's said.";
+    if (q === '2') return "Government bonds are the safest because national governments rarely default — they can usually just print more money to pay you back.";
+    if (q === '3') return "That's the whole point of an index ETF. One share, tiny slice of every company in the basket.";
+    return "";
+  }
+
+  document.getElementById('restart').addEventListener('click', () => {
+    answered = {}; score = 0;
+    document.getElementById('finalScore').textContent = '0/3';
+    document.querySelectorAll('.opt').forEach(b => {
+      b.classList.remove('correct','wrong');
+      b.disabled = false;
+    });
+    document.querySelectorAll('.feedback').forEach(f => f.classList.remove('show'));
+    go(0);
+  });
+
+  updateDots();
+  updateNav();
+</script>
+
+</body>
+</html>
