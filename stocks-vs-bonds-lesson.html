@@ -706,7 +706,7 @@
   backBtn.addEventListener('click', () => go(current - 1));
   nextBtn.addEventListener('click', () => {
     if (current === total - 1) {
-      // do nothing on last
+      window.location.href = "index.html";
       return;
     }
     go(current + 1);
